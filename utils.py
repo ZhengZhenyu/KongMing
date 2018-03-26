@@ -22,8 +22,6 @@ def calculate(cpu_set, tpl_map, total):
                     cpu_map += (tpl_map[i],)
 
         elif '-' in cpu_set:
-            import pdb
-            pdb.set_trace()
             param = re.split('-', cpu_set)
             if not len(param) == 2:
                 return False

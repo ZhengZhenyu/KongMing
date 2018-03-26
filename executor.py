@@ -1,6 +1,10 @@
 from __future__ import print_function
-import sys
 import libvirt
+
+import oslo_messaging as messaging
+from oslo_service import periodic_task
+
+from conf import CONF
 
 conn = libvirt.open('qemu:///system')
 hostname = conn.getHostname()
@@ -12,3 +16,16 @@ dom_id = dom.ID()
 dom_uuid = dom.UUIDString()
 dom_info = dom.info()  # state, max_mem, mem, cpu_num
 dom.isActive()
+
+
+class ExecutorManager(object):
+    """Cyborg Conductor manager main class."""
+
+    RPC_API_VERSION = '1.0'
+    target = messaging.Target(version=RPC_API_VERSION)
+
+    def __init__(self, topic, host=None):
+        super(ExecutorManager, self).__init__()
+        self.topic = topic
+        self.host = host or CONF.host
+
