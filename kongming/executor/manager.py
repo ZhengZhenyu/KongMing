@@ -2,9 +2,8 @@ from __future__ import print_function
 import libvirt
 
 import oslo_messaging as messaging
-from oslo_service import periodic_task
 
-from conf import CONF
+from kongming.conf import CONF
 
 conn = libvirt.open('qemu:///system')
 hostname = conn.getHostname()

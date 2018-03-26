@@ -1,4 +1,4 @@
-# Copyright 2017 Huawei Technologies Co.,LTD.
+# Copyright 2018 Huawei Technologies Co.,LTD.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_config import cfg
+import oslo_i18n as i18n
 
-CONF = cfg.CONF
+
+i18n.install('kongming')
