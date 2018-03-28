@@ -31,8 +31,8 @@ def main():
     # Parse config file and command line options, then start logging
     kongming_service.prepare_service(sys.argv)
 
-    mgr = kongming_service.RPCService('cyborg.conductor.manager',
-                                      'ConductorManager',
+    mgr = kongming_service.RPCService('kongming.executor.manager',
+                                      'ExecutorManager',
                                       constants.EXECUTOR_TOPIC)
 
     launcher = service.launch(CONF, mgr)
