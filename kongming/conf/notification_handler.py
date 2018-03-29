@@ -10,7 +10,11 @@ notification_handler_opts = [
     cfg.StrOpt('notifications_pool',
                default='kongming-notification-handler',
                help='Use an oslo.messaging pool, which can be an alternative '
-               'to multiple topics. ')
+               'to multiple topics.'),
+    cfg.StrOpt('notify_region_name',
+               default='RegionOne',
+               help='Region of the compute service'),
+    cfg.StrOpt('notify_auth_url',)
 ]
 
 

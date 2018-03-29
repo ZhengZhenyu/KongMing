@@ -23,11 +23,6 @@ class ExecutorManager(object):
     RPC_API_VERSION = '1.0'
     target = messaging.Target(version=RPC_API_VERSION)
 
-    def __init__(self, topic, host=None):
-        super(ExecutorManager, self).__init__()
-        self.topic = topic
-        self.host = host or CONF.host
-
     def execute(self, payload):
         pass
 

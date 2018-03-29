@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import sys
+
 from oslo_config import cfg
 from oslo_service import service as os_service
 
@@ -24,7 +26,7 @@ CONF = cfg.CONF
 
 
 def main():
-    service.prepare_service()
+    service.prepare_service(sys.argv)
     launcher = os_service.ProcessLauncher(CONF)
     launcher.launch_service(
         manager.ListenerService(),
