@@ -33,7 +33,8 @@ class NotificationEndpoint(object):
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()
-        if event_type_l == 'instance.create.end':
+        if event_type_l == 'instance.create.end' and \
+                payload['nova_object.data']['host'] == self.executor.hostname:
             self._process_event(ctxt, publisher_id, event_type,
                                 payload, metadata, 'INFO')
 
