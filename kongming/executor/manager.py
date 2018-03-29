@@ -18,7 +18,7 @@ dom.isActive()
 
 
 class ExecutorManager(object):
-    """Cyborg Conductor manager main class."""
+    """Kongming Executor manager main class."""
 
     RPC_API_VERSION = '1.0'
     target = messaging.Target(version=RPC_API_VERSION)
@@ -27,4 +27,7 @@ class ExecutorManager(object):
         super(ExecutorManager, self).__init__()
         self.topic = topic
         self.host = host or CONF.host
+
+    def execute(self, payload):
+        pass
 

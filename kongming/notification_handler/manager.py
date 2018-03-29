@@ -24,16 +24,18 @@ LOG = logging.getLogger(__name__)
 
 
 class NotificationEndpoint(object):
+    def __init__(self):
+        self.executor = exe_manager.ExecutorManager()
+
     def _process_event(self, ctxt, publisher_id, event_type, payload,
                        metadata, priority):
-        event_type_l = event_type.lower()
-        if event_type in CONF.notification_handler.event_filter:
-            exe_manager.ExecutorManager.execute(payload)
-
+        self.executor.execute(payload)
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
-        self._process_event(ctxt, publisher_id, event_type, payload, metadata,
-                            'INFO')
+        event_type_l = event_type.lower()
+        if event_type_l == 'instance.create.end':
+            self._process_event(ctxt, publisher_id, event_type,
+                                payload, metadata, 'INFO')
 
     def error(self, ctxt, publisher_id, event_type, payload, metadata):
         self._process_event(ctxt, publisher_id, event_type, payload, metadata,
