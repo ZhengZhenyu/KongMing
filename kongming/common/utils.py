@@ -71,7 +71,7 @@ def calculate_cpumap(cpu_set_list, total_cpus):
         return cpu_map
 
     else:
-        cpu_map = calculate(set, tpl_map, total_cpus)
+        cpu_map = calculate(cpu_set_list, tpl_map, total_cpus)
     if cpu_map:
         return cpu_map
     else:

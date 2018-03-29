@@ -31,7 +31,7 @@ class ExecutorManager(object):
         self.conn = libvirt.open('qemu:///system')
         self.hostname = self.conn.getHostname()
         self.maxcpu = self.conn.getInfo()[2]
-        LOG.debug('The maximum cpu of host %s is %s',
+        LOG.info('The maximum cpu of host %s is %s',
                   self.hostname, self.maxcpu)
 
     def execute(self, payload):
@@ -40,9 +40,19 @@ class ExecutorManager(object):
         if CONF.executor.executor_trigger_metadata_key in instance_metadata:
             cpu_set_list = instance_metadata[
                 CONF.executor.executor_trigger_metadata_key]
-            LOG.debug('Trying to Pin VCPU for instance %s', instance_uuid)
+            LOG.info('Trying to Pin VCPU for instance %s', instance_uuid)
             pinng_map = utils.calculate_cpumap(cpu_set_list, self.maxcpu)
-            LOG.debug('The calculated CPU map is ' + pinng_map)
+            LOG.info('The calculated CPU map is ' + str(pinng_map))
             import pdb
             pdb.set_trace()
             dom = self.conn.lookupByUUIDString(instance_uuid)
+            instance_cpu_num = dom.info()[3]
+            import pdb
+            pdb.set_trace()
+            LOG.info('Pin domain vcpus to host cpu %s.', pinng_map)
+            # for i in xrange(0, instance_cpu_num):
+            #     LOG.info('Pin domain vcpu %s to host cpu %s with'
+            #              'flag: %s', (i, pinng_map,
+            #                           libvirt.VIR_DOMAIN_AFFECT_LIVE))
+            dom.pinEmulator(pinng_map, libvirt.VIR_DOMAIN_AFFECT_LIVE)
+
