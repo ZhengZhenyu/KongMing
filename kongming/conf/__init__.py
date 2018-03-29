@@ -15,4 +15,7 @@
 
 from oslo_config import cfg
 
+from kongming.conf import notification_handler
+
 CONF = cfg.CONF
+notification_handler.register_opts(CONF)

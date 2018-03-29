@@ -10,11 +10,14 @@ notification_handler_opts = [
                help='Number of workers for notification service. A single '
                'notification agent is enabled by default.'),
     cfg.StrOpt('notifications_pool',
-               default='searchlight-listener',
+               default='kongming-notification-handler',
                help='Use an oslo.messaging pool, which can be an alternative '
                'to multiple topics. ')
 ]
 
 CONF = cfg.CONF
 
-CONF.register_opts(notification_handler_opts, group="notification_handler")
+
+def register_opts(conf):
+    conf.register_opts(
+        notification_handler_opts, group="notification_handler")

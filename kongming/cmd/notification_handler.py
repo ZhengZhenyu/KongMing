@@ -21,7 +21,6 @@ from kongming.notification_handler import manager
 
 
 CONF = cfg.CONF
-CONF.import_group("notification_handler", "kongming.notification_handler")
 
 
 def main():
