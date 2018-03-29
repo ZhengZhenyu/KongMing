@@ -45,8 +45,6 @@ class ExecutorManager(object):
             LOG.info('The calculated CPU map is ' + str(pinng_map))
             dom = self.conn.lookupByUUIDString(instance_uuid)
             instance_cpu_num = dom.info()[3]
-            import pdb
-            pdb.set_trace()
             LOG.info('Pin domain vcpus to host cpu %s.', pinng_map)
             for i in xrange(0, instance_cpu_num):
                 LOG.info('Pin domain vcpu %s to host cpu %s with'
