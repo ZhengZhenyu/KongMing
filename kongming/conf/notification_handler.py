@@ -1,7 +1,5 @@
 from oslo_config import cfg
 
-CONF = cfg.CONF
-
 
 notification_handler_opts = [
     cfg.IntOpt('workers',
@@ -14,8 +12,6 @@ notification_handler_opts = [
                help='Use an oslo.messaging pool, which can be an alternative '
                'to multiple topics. ')
 ]
-
-CONF = cfg.CONF
 
 
 def register_opts(conf):

@@ -28,7 +28,7 @@ def main():
     launcher = os_service.ProcessLauncher(CONF)
     launcher.launch_service(
         manager.ListenerService(),
-        workers=CONF.listener.workers)
+        workers=CONF.notification_handler.workers)
     launcher.wait()
 
 if __name__ == "__main__":
