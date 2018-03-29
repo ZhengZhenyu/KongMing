@@ -1,7 +1,11 @@
-# KongMing
+KongMing
+========
+
 Compute agent work with OpenStack Nova to achieve optimized NUMA allocations
 
-## Idea
+Idea
+----
+
 In NFV cloud scenario, performance is very important. Users often request
 to allocate the CPUs and RAM to the same NUMA for better performance. For
 some advanced NFV users, they have their own orchestrator, calculating the
