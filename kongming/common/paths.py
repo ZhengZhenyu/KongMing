@@ -15,7 +15,7 @@
 
 import os
 
-from cyborg.conf import CONF
+from kongming.conf import CONF
 
 
 def basedir_def(*args):

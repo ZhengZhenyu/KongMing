@@ -26,7 +26,7 @@ from oslo_versionedobjects import base as object_base
 import pecan
 import wsme
 
-from cyborg.common import exception
+from kongming.common import exception
 
 
 _ENFORCER = None

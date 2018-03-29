@@ -23,8 +23,8 @@ from oslo_log import log
 import six
 from six.moves import http_client
 
-from cyborg.common.i18n import _
-from cyborg.conf import CONF
+from kongming.common.i18n import _
+from kongming.conf import CONF
 
 
 LOG = log.getLogger(__name__)
