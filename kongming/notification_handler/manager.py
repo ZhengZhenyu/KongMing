@@ -44,7 +44,8 @@ class NotificationEndpoint(object):
 
 class ListenerService(os_service.Service):
     def __init__(self, *args, **kwargs):
-        self.listeners = None
+        super(ListenerService, self).__init__(*args, **kwargs)
+        self.listener = None
 
     def start(self):
         super(ListenerService, self).start()
