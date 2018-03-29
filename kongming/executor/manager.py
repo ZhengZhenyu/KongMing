@@ -43,16 +43,20 @@ class ExecutorManager(object):
             LOG.info('Trying to Pin VCPU for instance %s', instance_uuid)
             pinng_map = utils.calculate_cpumap(cpu_set_list, self.maxcpu)
             LOG.info('The calculated CPU map is ' + str(pinng_map))
-            import pdb
-            pdb.set_trace()
             dom = self.conn.lookupByUUIDString(instance_uuid)
             instance_cpu_num = dom.info()[3]
             import pdb
             pdb.set_trace()
             LOG.info('Pin domain vcpus to host cpu %s.', pinng_map)
-            # for i in xrange(0, instance_cpu_num):
-            #     LOG.info('Pin domain vcpu %s to host cpu %s with'
-            #              'flag: %s', (i, pinng_map,
-            #                           libvirt.VIR_DOMAIN_AFFECT_LIVE))
-            dom.pinEmulator(pinng_map, libvirt.VIR_DOMAIN_AFFECT_LIVE)
+            for i in xrange(0, instance_cpu_num):
+                LOG.info('Pin domain vcpu %s to host cpu %s with'
+                         'flag: %s...' % (i, pinng_map,
+                                       libvirt.VIR_DOMAIN_AFFECT_LIVE))
+                ret = dom.pinVcpuFlags(i, pinng_map,
+                                       libvirt.VIR_DOMAIN_AFFECT_LIVE)
+                if ret == 0:
+                    LOG.info('...Success')
+                else:
+                    LOG.info('...Failed')
 
+            LOG.info('VCPU ping for instance %s finished', instance_uuid)
