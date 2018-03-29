@@ -63,7 +63,7 @@ class ListenerService(os_service.Service):
             targets,
             endpoints,
             executor='threading',
-            pool=CONF.notifications_pool.notifications_pool)
+            pool=CONF.notification_handler.notifications_pool)
 
         self.listener.start()
 
