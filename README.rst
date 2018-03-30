@@ -142,7 +142,7 @@ Implementation
 How To Use
 ----------
 
-Note::
+Note ::
   VCPU pinning 不支持``QEMU``虚拟化。
 
 目前仅实现了第一种触发模式(Versioned Notification + Instance Metadata)
