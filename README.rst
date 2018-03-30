@@ -73,7 +73,7 @@ Implementation
     - 依赖于``Instance Metadata``(用户可见）
     - 不利于功能扩展
 
-架构图::
+  架构图::
     
               +-----------------+
               |  Message Queue  |
