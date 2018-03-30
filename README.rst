@@ -23,7 +23,7 @@ Implementation
 本项目的主要思路是在虚拟机创建成功后，通过某种机制触发部署在每一个计算节点上的``Executor``
 通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类
 
-1. Versioned Notification + Instance Metadata
+1. Versioned Notification + Instance Metadata (已经实现）
 
 * 优点:
 
@@ -61,7 +61,7 @@ Implementation
                  +---------------+
 
 
-2. Legacy Notification + Instance Metadata + Novaclient
+2. Legacy Notification + Instance Metadata + Novaclient(未实现）
   
 * 优点:
 
@@ -99,7 +99,7 @@ Implementation
                 +---------------+
          
 
-3. Stand-alone (API + DB +Executor)
+3. Stand-alone (API + DB +Executor)(未实现）
 
 * 优点:
 
@@ -129,3 +129,33 @@ Implementation
                                |  Libvirt  |
                                +-----------+
 
+
+How To Use
+----------
+
+Note::
+  VCPU pinning 不支持``QEMU``虚拟化。
+
+目前仅实现了第一种触发模式(Versioned Notification + Instance Metadata)
+
+1. 克隆代码::
+
+  git clone https://github.com/zhengzhenyu/kongming.git
+
+2. 安装::
+
+  python setup.py install
+
+3. 在kongming.conf中做如下配置::
+
+  [oslo_messaging_notifications]
+  transport_url = rabbit://{rabbit-pass}:root@{your-host}:5672/
+  driver = messagingv2
+
+4. 启动服务::
+
+  python /usr/local/bin/kongming-notification-handler --config-file=kongming.conf
+
+5. 在创建虚拟机时使用``metadata key``触发功能::
+
+  nova boot ... --meta kongming-vcpu-pinning=5-6,9-11,^10  test
