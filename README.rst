@@ -158,7 +158,9 @@ Note ::
 3. 在kongming.conf中做如下配置::
 
   [oslo_messaging_notifications]
+
   transport_url = rabbit://{rabbit-pass}:root@{your-host}:5672/
+  
   driver = messagingv2
 
 4. 启动服务::
