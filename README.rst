@@ -33,6 +33,31 @@ Implementation
 
       - 依赖于``Versioned Nofitication`` 及 ``Instance Metadata``(用户可见）
       - 不利于功能扩展
+    
+    架构图：
+         +-----------------+
+         |  Message Queue  |
+         +-------------+---+
+             ^         |
+      Listen |         | Versioned Notification
+             |         |
+             |         v
+    +--------+---------------------+
+    | KongMing Notifiation Handler |
+    +-------------+----------------+
+                  |
+                  |   Notification.Type == instance.create.end
+                  |   Notification.Payload.Host == self.host
+                  |
+        +---------v----------+
+        |  KongMing Executor |
+        +---------+----------+
+                  |
+                  | Payload Parse
+           +------v--------+
+           |    Libvirt    |
+           +---------------+
+
 
   2. Legacy Notification + Instance Metadata + Novaclient
     * 优点:
