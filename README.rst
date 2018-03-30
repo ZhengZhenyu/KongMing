@@ -73,6 +73,32 @@ Implementation
     - 依赖于``Instance Metadata``(用户可见）
     - 不利于功能扩展
 
+架构图::
+    
+              +-----------------+
+              |  Message Queue  |
+              +---+---------+---+
+                  |         |
+           Listen |         |  Legacy Notification
+                  |         |
+                  |         |
+         +--------+---------v------------+
+         | KongMing Notification Handler |
+         +-------------+-----------------+
+                       |
+                       |   Notification.Type == instance.create.end
+                       |   Notification.Publisher_id:host == self.host
+                       |
+             +---------v----------+  GET /server/{uuid}details    +---------------+
+             |  KongMing Executor +  ------------------------>    |   Nova-API    |
+             +---------+----------+  <-----------------------+    +---------------+
+                       |
+                       | Payload Parse
+                +------v--------+
+                |    Libvirt    |
+                +---------------+
+         
+
   3. Stand-alone (API + DB +Executor)
 
   * 优点:
