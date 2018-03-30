@@ -24,6 +24,7 @@ Implementation
 通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类：
 
   1. Versioned Notification + Instance Metadata
+
   * 优点:
 
     - 实现简单
