@@ -61,6 +61,7 @@ Implementation
 
 
   2. Legacy Notification + Instance Metadata + Novaclient
+  
   * 优点:
 
     - 实现中等
