@@ -21,9 +21,9 @@ Implementation
 --------------
 
 本项目的主要思路是在虚拟机创建成功后，通过某种机制触发部署在每一个计算节点上的``Executor``
-通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类：
+通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类
 
-  1. Versioned Notification + Instance Metadata
+1. Versioned Notification + Instance Metadata
 
   * 优点:
 
@@ -61,7 +61,7 @@ Implementation
                  +---------------+
 
 
-  2. Legacy Notification + Instance Metadata + Novaclient
+2. Legacy Notification + Instance Metadata + Novaclient
   
   * 优点:
 
@@ -99,7 +99,7 @@ Implementation
                 +---------------+
          
 
-  3. Stand-alone (API + DB +Executor)
+3. Stand-alone (API + DB +Executor)
 
   * 优点:
 
