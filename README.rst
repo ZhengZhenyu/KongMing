@@ -24,58 +24,59 @@ Implementation
 通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类：
 
   1. Versioned Notification + Instance Metadata
-    * 优点:
+  * 优点:
 
-      - 实现简单
-      - 没有额外的API调用
+    - 实现简单
+    - 没有额外的API调用
 
-    * 缺点:
+  * 缺点:
 
-      - 依赖于``Versioned Nofitication`` 及 ``Instance Metadata``(用户可见）
-      - 不利于功能扩展
+    - 依赖于``Versioned Nofitication`` 及 ``Instance Metadata``
+    - 不利于功能扩展
     
-    架构图：
-         +-----------------+
-         |  Message Queue  |
-         +-------------+---+
-             ^         |
-      Listen |         | Versioned Notification
-             |         |
-             |         v
-    +--------+---------------------+
-    | KongMing Notifiation Handler |
-    +-------------+----------------+
-                  |
-                  |   Notification.Type == instance.create.end
-                  |   Notification.Payload.Host == self.host
-                  |
-        +---------v----------+
-        |  KongMing Executor |
-        +---------+----------+
-                  |
-                  | Payload Parse
-           +------v--------+
-           |    Libvirt    |
-           +---------------+
+  架构图::
+
+               +-----------------+
+               |  Message Queue  |
+               +-------------+---+
+                   ^         |
+            Listen |         | Versioned Notification
+                   |         |
+                   |         v
+          +--------+----------------------+
+          | KongMing Notification Handler |
+          +-------------+-----------------+
+                        |
+                        |   Notification.Type == instance.create.end
+                        |   Notification.Payload.Host == self.host
+                        |
+              +---------v----------+
+              |  KongMing Executor |
+              +---------+----------+
+                        |
+                        | Payload Parse
+                 +------v--------+
+                 |    Libvirt    |
+                 +---------------+
 
 
   2. Legacy Notification + Instance Metadata + Novaclient
-    * 优点:
+  * 优点:
 
-      - 实现中等
+    - 实现中等
 
-    * 缺点:
+  * 缺点:
 
-      - 需要从计算节点通过API调用Nova-API
-      - 依赖于``Instance Metadata``(用户可见）
-      - 不利于功能扩展
+    - 需要从计算节点通过API调用Nova-API
+    - 依赖于``Instance Metadata``(用户可见）
+    - 不利于功能扩展
 
   3. Stand-alone (API + DB +Executor)
 
-    * 优点:
+  * 优点:
 
-      - 功能扩展性强
+    - 功能扩展性强
 
-    * 缺点:
+  * 缺点:
 
-      - 实现复杂
+    - 实现复杂
