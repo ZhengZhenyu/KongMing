@@ -49,7 +49,7 @@ LOG = log.getLogger(__name__)
 #
 #         target = messaging.Target(topic=self.topic, server=self.host)
 #         endpoints = [self.manager]
-#         serializer = objects_base.CyborgObjectSerializer()
+#         serializer = objects_base.KongmingObjectSerializer()
 #         self.rpcserver = rpc.get_server(target, endpoints, serializer)
 #         self.rpcserver.start()
 #
@@ -93,7 +93,7 @@ def process_launcher():
 
 
 # class WSGIService(service.ServiceBase):
-#     """Provides ability to launch cyborg API from wsgi app."""
+#     """Provides ability to launch kongming API from wsgi app."""
 #
 #     def __init__(self, name, use_ssl=False):
 #         """Initialize, but do not start the WSGI server.

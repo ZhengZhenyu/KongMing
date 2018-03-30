@@ -1,6 +1,3 @@
-# Copyright 2017 Huawei Technologies Co.,LTD.
-# All Rights Reserved.
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -18,9 +15,9 @@ import re
 from keystonemiddleware import auth_token
 from oslo_log import log
 
-from cyborg.common import exception
-from cyborg.common.i18n import _
-from cyborg.common import utils
+from kongming.common import exception
+from kongming.common.i18n import _
+from kongming.common import utils
 
 
 LOG = log.getLogger(__name__)

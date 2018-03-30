@@ -160,7 +160,7 @@ Note ::
   [oslo_messaging_notifications]
 
   transport_url = rabbit://{rabbit-pass}:root@{your-host}:5672/
-  
+
   driver = messagingv2
 
 4. 启动服务::

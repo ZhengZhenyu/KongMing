@@ -1,6 +1,3 @@
-# Copyright 2017 Huawei Technologies Co.,LTD.
-# All Rights Reserved.
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -23,11 +20,11 @@ from kongming import objects
 from kongming.objects import fields as object_fields
 
 
-class CyborgObjectRegistry(object_base.VersionedObjectRegistry):
+class KongmingObjectRegistry(object_base.VersionedObjectRegistry):
     def registration_hook(self, cls, index):
         # NOTE(jroll): blatantly stolen from nova
         # NOTE(danms): This is called when an object is registered,
-        # and is responsible for maintaining cyborg.objects.$OBJECT
+        # and is responsible for maintaining kongming.objects.$OBJECT
         # as the highest-versioned implementation of a given object.
         version = versionutils.convert_version_to_tuple(cls.VERSION)
         if not hasattr(objects, cls.obj_name()):
@@ -39,7 +36,7 @@ class CyborgObjectRegistry(object_base.VersionedObjectRegistry):
                 setattr(objects, cls.obj_name(), cls)
 
 
-class CyborgObject(object_base.VersionedObject):
+class KongmingObject(object_base.VersionedObject):
     """Base class and object factory.
 
     This forms the base of all objects that can be remoted or instantiated
@@ -49,8 +46,8 @@ class CyborgObject(object_base.VersionedObject):
     as appropriate.
     """
 
-    OBJ_SERIAL_NAMESPACE = 'cyborg_object'
-    OBJ_PROJECT_NAMESPACE = 'cyborg'
+    OBJ_SERIAL_NAMESPACE = 'kongming_object'
+    OBJ_PROJECT_NAMESPACE = 'kongming'
 
     fields = {
         'created_at': object_fields.DateTimeField(nullable=True),
@@ -86,15 +83,15 @@ class CyborgObject(object_base.VersionedObject):
         return objs
 
 
-class CyborgObjectSerializer(object_base.VersionedObjectSerializer):
+class KongmingObjectSerializer(object_base.VersionedObjectSerializer):
     # Base class to use for object hydration
-    OBJ_BASE_CLASS = CyborgObject
+    OBJ_BASE_CLASS = KongmingObject
 
 
-CyborgObjectDictCompat = object_base.VersionedObjectDictCompat
+KongmingObjectDictCompat = object_base.VersionedObjectDictCompat
 
 
-class CyborgPersistentObject(object):
+class KongmingPersistentObject(object):
     """Mixin class for Persistent objects.
 
     This adds the fields that we use in common for most persistent objects.
@@ -111,7 +108,7 @@ class ObjectListBase(object_base.ObjectListBase):
 
     @classmethod
     def _obj_primitive_key(cls, field):
-        return 'cyborg_object.%s' % field
+        return 'kongming_object.%s' % field
 
     @classmethod
     def _obj_primitive_field(cls, primitive, field,
@@ -126,12 +123,12 @@ class ObjectListBase(object_base.ObjectListBase):
 def obj_to_primitive(obj):
     """Recursively turn an object into a python primitive.
 
-    A CyborgObject becomes a dict, and anything that implements ObjectListBase
+    A KongmingObject becomes a dict, and anything that implements ObjectListBase
     becomes a list.
     """
     if isinstance(obj, ObjectListBase):
         return [obj_to_primitive(x) for x in obj]
-    elif isinstance(obj, CyborgObject):
+    elif isinstance(obj, KongmingObject):
         result = {}
         for key in obj.obj_fields:
             if obj.obj_attr_is_set(key) or key in obj.obj_extra_fields:

@@ -1,6 +1,3 @@
-# Copyright 2017 Huawei Technologies Co.,LTD.
-# All Rights Reserved.
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -13,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Policy Engine For Cyborg."""
+"""Policy Engine For Kongming."""
 
 import functools
 import sys
@@ -34,84 +31,7 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-default_policies = [
-    # Legacy setting, don't remove. Likely to be overridden by operators who
-    # forget to update their policy.json configuration file.
-    # This gets rolled into the new "is_admin" rule below.
-    policy.RuleDefault('admin_api',
-                       'role:admin or role:administrator',
-                       description='Legacy rule for cloud admin access'),
-    # is_public_api is set in the environment from AuthTokenMiddleware
-    policy.RuleDefault('public_api',
-                       'is_public_api:True',
-                       description='Internal flag for public API routes'),
-    # The policy check "@" will always accept an access. The empty list
-    # (``[]``) or the empty string (``""``) is equivalent to the "@"
-    policy.RuleDefault('allow',
-                       '@',
-                       description='any access will be passed'),
-    # the policy check "!" will always reject an access.
-    policy.RuleDefault('deny',
-                       '!',
-                       description='all access will be forbidden'),
-    policy.RuleDefault('is_admin',
-                       'rule:admin_api',
-                       description='Full read/write API access'),
-    policy.RuleDefault('admin_or_owner',
-                       'is_admin:True or project_id:%(project_id)s',
-                       description='Admin or owner API access'),
-    policy.RuleDefault('admin_or_user',
-                       'is_admin:True or user_id:%(user_id)s',
-                       description='Admin or user API access'),
-    policy.RuleDefault('default',
-                       'rule:admin_or_owner',
-                       description='Default API access rule'),
-]
-
-# NOTE: to follow policy-in-code spec, we define defaults for
-#       the granular policies in code, rather than in policy.json.
-#       All of these may be overridden by configuration, but we can
-#       depend on their existence throughout the code.
-
-accelerator_policies = [
-    policy.RuleDefault('cyborg:accelerator:get',
-                       'rule:default',
-                       description='Retrieve accelerator records'),
-    policy.RuleDefault('cyborg:accelerator:create',
-                       'rule:allow',
-                       description='Create accelerator records'),
-    policy.RuleDefault('cyborg:accelerator:delete',
-                       'rule:default',
-                       description='Delete accelerator records'),
-    policy.RuleDefault('cyborg:accelerator:update',
-                       'rule:default',
-                       description='Update accelerator records'),
-]
-
-deployable_policies = [
-    policy.RuleDefault('cyborg:deployable:get_one',
-                       'rule:allow',
-                       description='Show deployable detail'),
-    policy.RuleDefault('cyborg:deployable:get_all',
-                       'rule:allow',
-                       description='Retrieve all deployable records'),
-    policy.RuleDefault('cyborg:deployable:create',
-                       'rule:admin_api',
-                       description='Create deployable records'),
-    policy.RuleDefault('cyborg:deployable:delete',
-                       'rule:admin_api',
-                       description='Delete deployable records'),
-    policy.RuleDefault('cyborg:deployable:update',
-                       'rule:admin_api',
-                       description='Update deployable records'),
-]
-
-
-def list_policies():
-    return default_policies + accelerator_policies + deployable_policies
-
-
-@lockutils.synchronized('policy_enforcer', 'cyborg-')
+@lockutils.synchronized('policy_enforcer', 'kongming-')
 def init_enforcer(policy_file=None, rules=None,
                   default_rule=None, use_conf=True):
     """Synchronously initializes the policy enforcer
@@ -183,11 +103,11 @@ def authorize_wsgi(api_name, act=None, need_target=True):
                         when create some resource , maybe target is not needed.
 
     example:
-        from cyborg.common import policy
-        class AcceleratorController(rest.RestController):
+        from kongming.common import policy
+        class AllocationController(rest.RestController):
             ....
-            @policy.authorize_wsgi("cyborg:accelerator", "create", False)
-            @wsme_pecan.wsexpose(Accelerator, body=types.jsontype,
+            @policy.authorize_wsgi("kongming:allocation", "create", False)
+            @wsme_pecan.wsexpose(Allocation, body=types.jsontype,
                                  status_code=http_client.CREATED)
             def post(self, values):
                 ...

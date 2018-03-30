@@ -1,4 +1,4 @@
-# Copyright 2018 Huawei Technologies Co.,LTD.
+# Copyright 2018 Zhenyu Zheng <zheng.zhenyu@outlook.com>
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
