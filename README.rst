@@ -92,8 +92,8 @@ Implementation
              +---------v----------+  GET /server/{uuid}details    +---------------+
              |  KongMing Executor +  ------------------------>    |   Nova-API    |
              +---------+----------+  <-----------------------+    +---------------+
-                       |
-                       | Payload Parse
+                       |                 instance.metadata
+                       | Metadata Parse
                 +------v--------+
                 |    Libvirt    |
                 +---------------+
