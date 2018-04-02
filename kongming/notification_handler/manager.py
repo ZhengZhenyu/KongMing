@@ -22,6 +22,9 @@ from kongming.executor import manager as exe_manager
 
 LOG = logging.getLogger(__name__)
 
+SUPPORTED_ENVENTS = [
+    'instance.create.end', 'instance.instance_metadata_update']
+
 
 class NotificationEndpoint(object):
     def __init__(self):
@@ -33,7 +36,7 @@ class NotificationEndpoint(object):
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()
-        if event_type_l == 'instance.create.end' and \
+        if event_type_l in SUPPORTED_ENVENTS and \
                 payload['nova_object.data']['host'] == self.executor.hostname:
             self._process_event(ctxt, publisher_id, event_type,
                                 payload, metadata, 'INFO')
