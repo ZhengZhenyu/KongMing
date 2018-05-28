@@ -36,7 +36,8 @@ class Accelerator(base.KongmingObject, object_base.VersionedObjectDictCompat):
         'instance_uuid': object_fields.UUIDField(nullable=False),
         'project_id': object_fields.UUIDField(nullable=False),
         'user_id': object_fields.UUIDField(nullable=False),
-        'cpu_mappings': object_fields.StringField(nullable=True)
+        'cpu_mappings': object_fields.StringField(nullable=True),
+        'host': object_fields.StringField(nullable=True)
     }
 
     def create(self, context):
