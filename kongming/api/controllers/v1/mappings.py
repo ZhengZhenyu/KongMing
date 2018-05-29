@@ -26,7 +26,7 @@ from kongming.api.controllers.v1 import utils as api_utils
 from kongming.api import expose
 from kongming.common import exception
 from kongming.common import policy
-from kongming.common import novaclient
+from kongming.common import clients
 from kongming import objects
 
 
@@ -120,7 +120,7 @@ class MappingsController(AcceleratorsControllerBase):
         mapping = objects.Mapping(context, **mapping)
 
         instance_uuid = mapping.instance_uuid
-        servers = openstack_clients.get_novaclient().servers.get(instance_uuid)
+        servers = clients.get_novaclient().servers.get(instance_uuid)
 
         base_options = {
             'project_id': context.tenant,

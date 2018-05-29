@@ -17,7 +17,7 @@ import jsonpatch
 import wsme
 
 
-from cyborg.common.i18n import _
+from kongming.common.i18n import _
 
 
 JSONPATCH_EXCEPTIONS = (jsonpatch.JsonPatchException,
