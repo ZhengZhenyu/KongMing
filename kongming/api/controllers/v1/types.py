@@ -21,8 +21,8 @@ from oslo_utils import uuidutils
 import wsme
 from wsme import types as wtypes
 
-from cyborg.common import exception
-from cyborg.common.i18n import _
+from kongming.common import exception
+from kongming.common.i18n import _
 
 
 class UUIDType(wtypes.UserType):
