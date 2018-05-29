@@ -16,7 +16,7 @@
 import pecan
 from wsme import types as wtypes
 
-from cyborg.api.controllers import base
+from kongming.api.controllers import base
 
 
 def build_url(resource, resource_args, bookmark=False, base_url=None):
