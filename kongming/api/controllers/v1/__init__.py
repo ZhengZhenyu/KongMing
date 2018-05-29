@@ -13,17 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Version 1 of the Cyborg API"""
+"""Version 1 of the Kongming API"""
 
 import pecan
 from pecan import rest
 from wsme import types as wtypes
 
-from cyborg.api.controllers import base
-from cyborg.api.controllers import link
-from cyborg.api.controllers.v1 import accelerators
-from cyborg.api.controllers.v1 import deployables
-from cyborg.api import expose
+from kongming.api.controllers import base
+from kongming.api.controllers import link
+from kongming.api.controllers.v1 import mappings
+from kongming.api import expose
 
 
 class V1(base.APIBase):
@@ -32,18 +31,18 @@ class V1(base.APIBase):
     id = wtypes.text
     """The ID of the version"""
 
-    accelerator = [link.Link]
+    mapping = [link.Link]
     """Links to the accelerator resource"""
 
     @staticmethod
     def convert():
         v1 = V1()
         v1.id = 'v1'
-        v1.accelerator = [
+        v1.mapping = [
             link.Link.make_link('self', pecan.request.public_url,
-                                'accelerator', ''),
+                                'mapping', ''),
             link.Link.make_link('bookmark', pecan.request.public_url,
-                                'accelerator', '', bookmark=True)
+                                'mapping', '', bookmark=True)
             ]
         return v1
 
@@ -51,8 +50,7 @@ class V1(base.APIBase):
 class Controller(rest.RestController):
     """Version 1 API controller root"""
 
-    accelerators = accelerators.AcceleratorsController()
-    deployables = deployables.DeployablesController()
+    mappings = mappings.MappingsController()
 
     @expose.expose(V1)
     def get(self):
