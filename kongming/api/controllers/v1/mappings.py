@@ -26,11 +26,12 @@ from kongming.api.controllers.v1 import utils as api_utils
 from kongming.api import expose
 from kongming.common import exception
 from kongming.common import policy
+from kongming.common import novaclient
 from kongming import objects
 
 
 class Mapping(base.APIBase):
-    """API representation of a accelerator.
+    """API representation of a mapping.
 
     This class enforces type checking and value constraints, and converts
     between the internal object model and the API representation of
@@ -46,7 +47,7 @@ class Mapping(base.APIBase):
     user_id = types.uuid
     """The user UUID of the mapping"""
 
-    mapping = wtypes.text
+    cpu_mappings = wtypes.text
     """The mapping"""
 
     links = wsme.wsattr([link.Link], readonly=True)
@@ -72,7 +73,7 @@ class Mapping(base.APIBase):
 
 
 class MappingCollection(base.APIBase):
-    """API representation of a collection of mapings."""
+    """API representation of a collection of mappings."""
 
     mappings = [Mapping]
     """A list containing mapping objects"""
@@ -116,28 +117,38 @@ class MappingsController(AcceleratorsControllerBase):
         :param mapping: an mapping within the request body.
         """
         context = pecan.request.context
-        obj_acc = objects.Mapping(context, **mapping)
-        new_acc = pecan.request.conductor_api.accelerator_create(context,
-                                                                 obj_acc)
-        # Set the HTTP Location Header
-        pecan.response.location = link.build_url('accelerators', new_acc.uuid)
-        return Accelerator.convert_with_links(new_acc)
+        mapping = objects.Mapping(context, **mapping)
 
-    @policy.authorize_wsgi("cyborg:accelerator", "get")
-    @expose.expose(Accelerator, types.uuid)
+        instance_uuid = mapping.instance_uuid
+        servers = openstack_clients.get_novaclient().servers.get(instance_uuid)
+
+        base_options = {
+            'project_id': context.tenant,
+            'user_id': context.user
+        }
+        mapping.update(base_options)
+        mapping.create(context)
+
+        # Set the HTTP Location Header
+        pecan.response.location = link.build_url('mappings',
+                                                 mapping.instance_uuid)
+        return Accelerator.convert_with_links(mapping)
+
+    @policy.authorize_wsgi("kongming:mapping", "get")
+    @expose.expose(Mapping, types.uuid)
     def get_one(self, uuid):
-        """Retrieve information about the given accelerator.
+        """Retrieve information about the given maping.
 
         :param uuid: UUID of an accelerator.
         """
-        obj_acc = self._resource or self._get_resource(uuid)
-        return Accelerator.convert_with_links(obj_acc)
+        mapping = self._resource or self._get_resource(uuid)
+        return Mapping.convert_with_links(mapping)
 
-    @expose.expose(AcceleratorCollection, int, types.uuid, wtypes.text,
+    @expose.expose(MappingCollection, int, types.uuid, wtypes.text,
                    wtypes.text, types.boolean)
     def get_all(self, limit=None, marker=None, sort_key='id', sort_dir='asc',
                 all_tenants=None):
-        """Retrieve a list of accelerators.
+        """Retrieve a list of mappings.
 
         :param limit: Optional, to determinate the maximum number of
                       accelerators to return.
@@ -159,13 +170,13 @@ class MappingsController(AcceleratorsControllerBase):
 
         marker_obj = None
         if marker:
-            marker_obj = objects.Accelerator.get(context, marker)
+            marker_obj = objects.Mapping.get(context, marker)
 
-        obj_accs = objects.Accelerator.list(context, limit, marker_obj,
+        mappings = objects.Mapping.list(context, limit, marker_obj,
                                             sort_key, sort_dir, project_only)
-        return AcceleratorCollection.convert_with_links(obj_accs)
+        return MappingCollection.convert_with_links(obj_accs)
 
-    @policy.authorize_wsgi("cyborg:accelerator", "update")
+    @policy.authorize_wsgi("kongming:accelerator", "update")
     @expose.expose(Accelerator, types.uuid, body=[AcceleratorPatchType])
     def patch(self, uuid, patch):
         """Update an accelerator.
@@ -197,12 +208,12 @@ class MappingsController(AcceleratorsControllerBase):
                                                                  obj_acc)
         return Accelerator.convert_with_links(new_acc)
 
-    @policy.authorize_wsgi("cyborg:accelerator", "delete")
+    @policy.authorize_wsgi("kongming:mapping", "delete")
     @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
     def delete(self, uuid):
-        """Delete an accelerator.
+        """Delete a mapping.
 
-        :param uuid: UUID of an accelerator.
+        :param uuid: UUID of instance that the mapping related to.
         """
         obj_acc = self._resource or self._get_resource(uuid)
         context = pecan.request.context

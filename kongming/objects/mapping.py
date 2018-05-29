@@ -25,7 +25,7 @@ LOG = logging.getLogger(__name__)
 
 
 @base.KongmingObjectRegistry.register
-class Accelerator(base.KongmingObject, object_base.VersionedObjectDictCompat):
+class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
     # Version 1.0: Initial version
     VERSION = '1.0'
 
