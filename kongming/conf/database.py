@@ -1,3 +1,6 @@
+# Copyright 2017 Huawei Technologies Co.,LTD.
+# All Rights Reserved.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -12,15 +15,18 @@
 
 from oslo_config import cfg
 
-from kongming.conf import api
-from kongming.conf import database
-from kongming.conf import default
-from kongming.conf import executor
-from kongming.conf import notification_handler
+from cyborg.common.i18n import _
 
-CONF = cfg.CONF
-api.register_opts(CONF)
-database.register_opts(CONF)
-default.register_opts(CONF)
-executor.register_opts(CONF)
-notification_handler.register_opts(CONF)
+
+opts = [
+    cfg.StrOpt('mysql_engine',
+               default='InnoDB',
+               help=_('MySQL engine to use.'))
+]
+
+opt_group = cfg.OptGroup(name='database',
+                         title='Options for the database service')
+
+
+def register_opts(conf):
+    conf.register_opts(opts, group=opt_group)
