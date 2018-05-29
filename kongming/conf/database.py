@@ -15,7 +15,7 @@
 
 from oslo_config import cfg
 
-from cyborg.common.i18n import _
+from kongming.common.i18n import _
 
 
 opts = [
