@@ -12,3 +12,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+from kongming.api.middleware import auth_token
+from kongming.api.middleware import parsable_error
+
+
+ParsableErrorMiddleware = parsable_error.ParsableErrorMiddleware
+AuthTokenMiddleware = auth_token.AuthTokenMiddleware
+
+__all__ = ('ParsableErrorMiddleware',
+           'AuthTokenMiddleware')
