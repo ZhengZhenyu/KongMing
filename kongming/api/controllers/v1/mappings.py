@@ -19,6 +19,8 @@ from six.moves import http_client
 import wsme
 from wsme import types as wtypes
 
+from oslo_log import log
+
 from kongming.api.controllers import base
 from kongming.api.controllers import link
 from kongming.api.controllers.v1 import types

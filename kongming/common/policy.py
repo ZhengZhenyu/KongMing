@@ -1,3 +1,6 @@
+# Copyright (c) 2016 Intel
+# All Rights Reserved.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -13,22 +16,83 @@
 """Policy Engine For Kongming."""
 
 import functools
-import sys
-
 from oslo_concurrency import lockutils
 from oslo_config import cfg
 from oslo_log import log
 from oslo_policy import policy
 from oslo_versionedobjects import base as object_base
 import pecan
+import sys
 import wsme
 
 from kongming.common import exception
 
-
 _ENFORCER = None
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
+
+default_policies = [
+    # Legacy setting, don't remove. Likely to be overridden by operators who
+    # forget to update their policy.json configuration file.
+    # This gets rolled into the new "is_admin" rule below.
+    policy.RuleDefault('admin_api',
+                       'role:admin or role:administrator',
+                       description='Legacy rule for cloud admin access'),
+    # is_public_api is set in the environment from AuthTokenMiddleware
+    policy.RuleDefault('public_api',
+                       'is_public_api:True',
+                       description='Internal flag for public API routes'),
+    # Generic default to hide server secrets
+    policy.RuleDefault('show_server_secrets',
+                       '!',
+                       description='Show or mask secrets within server information in API responses'),  # noqa
+    # The policy check "@" will always accept an access. The empty list
+    # (``[]``) or the empty string (``""``) is equivalent to the "@"
+    policy.RuleDefault('allow',
+                       '@',
+                       description='any access will be passed'),
+    # the policy check "!" will always reject an access.
+    policy.RuleDefault('deny',
+                       '!',
+                       description='all access will be forbidden'),
+    policy.RuleDefault('is_admin',
+                       'rule:admin_api',  # noqa
+                       description='Full read/write API access'),
+    policy.RuleDefault('admin_or_owner',
+                       'is_admin:True or project_id:%(project_id)s',
+                       description='Admin or owner API access'),
+    policy.RuleDefault('admin_or_user',
+                       'is_admin:True or user_id:%(user_id)s',
+                       description='Admin or user API access'),
+    policy.RuleDefault('default',
+                       'rule:admin_or_owner',
+                       description='Default API access rule'),
+]
+
+# NOTE: to follow policy-in-code spec, we define defaults for
+#             the granular policies in code, rather than in policy.json.
+#             All of these may be overridden by configuration, but we can
+#             depend on their existence throughout the code.
+
+mapping_policies = [
+    policy.RuleDefault('kongming:mapping:get',
+                       'rule:default',
+                       description='Retrieve Mapping records'),
+    policy.RuleDefault('kongming:mapping:create',
+                       'rule:allow',
+                       description='Create Mapping records'),
+    policy.RuleDefault('kongming:mapping:delete',
+                       'rule:default',
+                       description='Delete Mapping records'),
+    policy.RuleDefault('kongming:mapping:update',
+                       'rule:default',
+                       description='Update Mapping records'),
+]
+
+
+def list_policies():
+    policies = (default_policies + server_policies)
+    return policies
 
 
 @lockutils.synchronized('policy_enforcer', 'kongming-')
@@ -36,14 +100,14 @@ def init_enforcer(policy_file=None, rules=None,
                   default_rule=None, use_conf=True):
     """Synchronously initializes the policy enforcer
 
-    :param policy_file: Custom policy file to use, if none is specified,
-                        `CONF.oslo_policy.policy_file` will be used.
-    :param rules: Default dictionary / Rules to use. It will be
-                  considered just in the first instantiation.
-    :param default_rule: Default rule to use,
-                         CONF.oslo_policy.policy_default_rule will
-                         be used if none is specified.
-    :param use_conf: Whether to load rules from config file.
+       :param policy_file: Custom policy file to use, if none is specified,
+                           `CONF.oslo_policy.policy_file` will be used.
+       :param rules: Default dictionary / Rules to use. It will be
+                     considered just in the first instantiation.
+       :param default_rule: Default rule to use,
+                            CONF.oslo_policy.policy_default_rule will
+                            be used if none is specified.
+       :param use_conf: Whether to load rules from config file.
 
     """
     global _ENFORCER
@@ -63,8 +127,7 @@ def init_enforcer(policy_file=None, rules=None,
 
 
 def get_enforcer():
-    """Provides access to the single accelerator of policy enforcer."""
-    global _ENFORCER
+    """Provides access to the single server of Policy enforcer."""
 
     if not _ENFORCER:
         init_enforcer()
@@ -78,42 +141,42 @@ def get_enforcer():
 # at module-load time.
 
 
-def authorize(rule, target, creds, do_raise=False, *args, **kwargs):
+def authorize(rule, target, creds, *args, **kwargs):
     """A shortcut for policy.Enforcer.authorize()
 
     Checks authorization of a rule against the target and credentials, and
     raises an exception if the rule is not defined.
+
+    Beginning with the Newton cycle, this should be used in place of 'enforce'.
     """
     enforcer = get_enforcer()
     try:
-        return enforcer.authorize(rule, target, creds, do_raise=do_raise,
+        return enforcer.authorize(rule, target, creds, do_raise=True,
                                   *args, **kwargs)
     except policy.PolicyNotAuthorized:
         raise exception.HTTPForbidden(resource=rule)
 
 
-# This decorator MUST appear first (the outermost decorator)
-# on an API method for it to work correctly
+# NOTE(Shaohe Feng): This decorator MUST appear first (the outermost
+# decorator) on an API method for it to work correctly
 def authorize_wsgi(api_name, act=None, need_target=True):
     """This is a decorator to simplify wsgi action policy rule check.
 
-    :param api_name: The collection name to be evaluate.
-    :param act: The function name of wsgi action.
-    :param need_target: Whether need target for authorization. Such as,
-                        when create some resource , maybe target is not needed.
-
-    example:
-        from kongming.common import policy
-        class AllocationController(rest.RestController):
-            ....
-            @policy.authorize_wsgi("kongming:allocation", "create", False)
-            @wsme_pecan.wsexpose(Allocation, body=types.jsontype,
-                                 status_code=http_client.CREATED)
-            def post(self, values):
-                ...
+        :param api_name: The collection name to be evaluate.
+        :param act: The function name of wsgi action.
+        :param need_target: Whether need target for authorization. Such as,
+               when create some resource , maybe target is not needed.
+       example:
+           from mogan.common import policy
+           class ServersController(rest.RestController):
+               ....
+               @policy.authorize_wsgi("mogan:server", "delete")
+               @wsme_pecan.wsexpose(None, types.uuid_or_name, status_code=204)
+               def delete(self, bay_ident):
+                   ...
     """
     def wraper(fn):
-        action = '%s:%s' % (api_name, act or fn.__name__)
+        action = "%s:%s" % (api_name, (act or fn.__name__))
 
         # In this authorize method, we return a dict data when authorization
         # fails or exception comes out. Maybe we can consider to use
@@ -159,14 +222,39 @@ def authorize_wsgi(api_name, act=None, need_target=True):
                 # the credentials with itself.
                 target = {'project_id': context.tenant,
                           'user_id': context.user}
-
             try:
-                authorize(action, target, credentials, do_raise=True)
+                authorize(action, target, credentials)
             except Exception:
                 return return_error(403)
-
             return fn(self, *args, **kwargs)
-
         return handle
 
     return wraper
+
+
+def check(rule, target, creds, *args, **kwargs):
+    """A shortcut for policy.Enforcer.enforce()
+
+    Checks authorization of a rule against the target and credentials
+    and returns True or False.
+    """
+    enforcer = get_enforcer()
+    return enforcer.enforce(rule, target, creds, *args, **kwargs)
+
+
+def enforce(rule, target, creds, do_raise=False, exc=None, *args, **kwargs):
+    """A shortcut for policy.Enforcer.enforce()
+
+    Checks authorization of a rule against the target and credentials.
+
+    """
+    # NOTE: this method is obsoleted by authorize(), but retained for
+    # backwards compatibility in case it has been used downstream.
+    # It may be removed in the Pike cycle.
+    LOG.warning("Deprecation warning: calls to mogan.common.policy.enforce() "
+                "should be replaced with authorize(). This method may be "
+                "removed in a future release.")
+
+    enforcer = get_enforcer()
+    return enforcer.enforce(rule, target, creds, do_raise=do_raise,
+                            exc=exc, *args, **kwargs)
