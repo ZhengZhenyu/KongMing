@@ -91,7 +91,7 @@ mapping_policies = [
 
 
 def list_policies():
-    policies = (default_policies + server_policies)
+    policies = (default_policies + mapping_policies)
     return policies
 
 
