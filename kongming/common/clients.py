@@ -15,6 +15,8 @@ from distutils.version import LooseVersion
 import os
 
 from novaclient import client as nova_client
+from keystoneauth1 import loading as ka_loading
+from keystoneclient import exceptions as keystone_exceptions
 from kongming.common import exception
 
 from oslo_config import cfg
