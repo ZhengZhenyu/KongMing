@@ -14,6 +14,27 @@
 #    under the License.
 
 import re
+import six
+
+from oslo_log import log
+from oslo_concurrency import lockutils
+
+
+def safe_rstrip(value, chars=None):
+    """Removes trailing characters from a string if that does not make it empty
+
+    :param value: A string value that will be stripped.
+    :param chars: Characters to remove.
+    :return: Stripped value.
+
+    """
+    if not isinstance(value, six.string_types):
+        LOG.warning("Failed to remove trailing character. Returning "
+                    "original object. Supplied object is not a string: "
+                    "%s,", value)
+        return value
+
+    return value.rstrip(chars) or value
 
 
 def calculate(cpu_set, tpl_map, total):
@@ -61,7 +82,7 @@ def calculate(cpu_set, tpl_map, total):
 
         return cpu_map
     except ValueError as e:
-        print "ValueError: " + str(e)
+        print("ValueError: " + str(e))
         return False
 
 
@@ -91,3 +112,4 @@ def calculate_cpumap(cpu_set_list, total_cpus):
         return cpu_map
     else:
         return False
+

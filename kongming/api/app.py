@@ -60,3 +60,9 @@ class VersionSelectorApplication(object):
 
     def __call__(self, environ, start_response):
         return self.v1(environ, start_response)
+
+
+def build_wsgi_app():
+    from kongming.common import service as kongming_service
+    kongming_service.prepare_service(sys.argv)
+    return setup_app()

@@ -31,18 +31,18 @@ class V1(base.APIBase):
     id = wtypes.text
     """The ID of the version"""
 
-    mapping = [link.Link]
-    """Links to the accelerator resource"""
+    mappings = [link.Link]
+    """Links to the mapping resource"""
 
     @staticmethod
     def convert():
         v1 = V1()
         v1.id = 'v1'
-        v1.mapping = [
+        v1.mappings = [
             link.Link.make_link('self', pecan.request.public_url,
-                                'mapping', ''),
+                                'mappings', ''),
             link.Link.make_link('bookmark', pecan.request.public_url,
-                                'mapping', '', bookmark=True)
+                                'mappings', '', bookmark=True)
             ]
         return v1
 

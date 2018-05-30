@@ -30,6 +30,9 @@ from kongming.common import clients
 from kongming import objects
 
 
+LOG = log.getLogger(__name__)
+
+
 class Mapping(base.APIBase):
     """API representation of a mapping.
 
@@ -96,7 +99,7 @@ class MappingPatchType(types.JsonPatchType):
         return defaults + ['/project_id', '/user_id', 'instance_uuid']
 
 
-class MappingsControllerBase(rest.RestController):
+class MappingControllerBase(rest.RestController):
 
     _resource = None
 
@@ -105,7 +108,7 @@ class MappingsControllerBase(rest.RestController):
         return self._resource
 
 
-class MappingsController(AcceleratorsControllerBase):
+class MappingsController(MappingControllerBase):
     """REST controller for Mappings."""
 
     @policy.authorize_wsgi("kongming:mapping", "create", False)
@@ -132,7 +135,7 @@ class MappingsController(AcceleratorsControllerBase):
         # Set the HTTP Location Header
         pecan.response.location = link.build_url('mappings',
                                                  mapping.instance_uuid)
-        return Accelerator.convert_with_links(mapping)
+        return Mapping.convert_with_links(mapping)
 
     @policy.authorize_wsgi("kongming:mapping", "get")
     @expose.expose(Mapping, types.uuid)
@@ -176,23 +179,23 @@ class MappingsController(AcceleratorsControllerBase):
                                             sort_key, sort_dir, project_only)
         return MappingCollection.convert_with_links(obj_accs)
 
-    @policy.authorize_wsgi("kongming:accelerator", "update")
-    @expose.expose(Accelerator, types.uuid, body=[AcceleratorPatchType])
+    @policy.authorize_wsgi("kongming:mapping", "update")
+    @expose.expose(Mapping, types.uuid, body=[MappingPatchType])
     def patch(self, uuid, patch):
-        """Update an accelerator.
+        """Update a Mapping.
 
         :param uuid: UUID of an accelerator.
-        :param patch: a json PATCH document to apply to this accelerator.
+        :param patch: a json PATCH document to apply to this mapping.
         """
         obj_acc = self._resource or self._get_resource(uuid)
         try:
-            api_acc = Accelerator(
+            mapping = Mapping(
                 **api_utils.apply_jsonpatch(obj_acc.as_dict(), patch))
         except api_utils.JSONPATCH_EXCEPTIONS as e:
             raise exception.PatchError(patch=patch, reason=e)
 
         # Update only the fields that have changed
-        for field in objects.Accelerator.fields:
+        for field in objects.Mapping.fields:
             try:
                 patch_val = getattr(api_acc, field)
             except AttributeError:
@@ -204,9 +207,9 @@ class MappingsController(AcceleratorsControllerBase):
                 obj_acc[field] = patch_val
 
         context = pecan.request.context
-        new_acc = pecan.request.conductor_api.accelerator_update(context,
-                                                                 obj_acc)
-        return Accelerator.convert_with_links(new_acc)
+        #new_mapping = pecan.request.conductor_api.accelerator_update(context,
+        #                                                         obj_acc)
+        #return Accelerator.convert_with_links(new_acc)
 
     @policy.authorize_wsgi("kongming:mapping", "delete")
     @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
@@ -217,4 +220,4 @@ class MappingsController(AcceleratorsControllerBase):
         """
         obj_acc = self._resource or self._get_resource(uuid)
         context = pecan.request.context
-        pecan.request.conductor_api.accelerator_delete(context, obj_acc)
+        #pecan.request.conductor_api.accelerator_delete(context, obj_acc)

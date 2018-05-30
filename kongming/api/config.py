@@ -13,7 +13,7 @@
 # Server Specific Configurations
 # See https://pecan.readthedocs.org/en/latest/configuration.html#server-configuration # noqa
 server = {
-    'port': '6767',
+    'port': '6666',
     'host': '0.0.0.0'
 }
 
