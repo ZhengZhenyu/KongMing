@@ -177,3 +177,8 @@ class PlacementInventoryUpdateConflict(Conflict):
 
 class ObjectActionError(KongMingException):
     _msg_fmt = _('Object action %(action)s failed because: %(reason)s')
+
+
+class InvalidInstanceStatus(KongMingException):
+    _msg_fmt = _('Mapping creation failed for instance: %(instance)s, '
+                 'the instance should be in ACTIVE status.')

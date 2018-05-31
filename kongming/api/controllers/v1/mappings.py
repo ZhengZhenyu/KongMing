@@ -59,9 +59,11 @@ class Mapping(base.APIBase):
     """A list containing a self link"""
 
     def __init__(self, **kwargs):
-        super(Mapping, self).__init__(**kwargs)
         self.fields = []
         for field in objects.Mapping.fields:
+            # Skip fields we do not expose.
+            if not hasattr(self, field):
+                continue
             self.fields.append(field)
             setattr(self, field, kwargs.get(field, wtypes.Unset))
 
@@ -70,11 +72,23 @@ class Mapping(base.APIBase):
         api_mapping = cls(**obj_mapping.as_dict())
         url = pecan.request.public_url
         api_mapping.links = [
-            link.Link.make_link('self', url, 'mappings', api_acc.uuid),
-            link.Link.make_link('bookmark', url, 'mappings', api_acc.uuid,
-                                bookmark=True)
+            link.Link.make_link(
+                'self', url, 'mappings', api_mapping.instance_uuid),
+            link.Link.make_link(
+                'bookmark', url, 'mappings', api_mapping.instance_uuid,
+                bookmark=True)
             ]
         return api_mapping
+
+
+class MappingPatchType(types.JsonPatchType):
+
+    _api_base = Mapping
+
+    @staticmethod
+    def internal_attrs():
+        defaults = types.JsonPatchType.internal_attrs()
+        return defaults + ['/project_id', '/user_id', 'instance_uuid']
 
 
 class MappingCollection(base.APIBase):
@@ -89,16 +103,6 @@ class MappingCollection(base.APIBase):
         collection.mappings = [Mapping.convert_with_links(obj_mapping)
                                for obj_mapping in obj_mappings]
         return collection
-
-
-class MappingPatchType(types.JsonPatchType):
-
-    _api_base = Mapping
-
-    @staticmethod
-    def internal_attrs():
-        defaults = types.JsonPatchType.internal_attrs()
-        return defaults + ['/project_id', '/user_id', 'instance_uuid']
 
 
 class MappingControllerBase(rest.RestController):
@@ -122,17 +126,19 @@ class MappingsController(MappingControllerBase):
         :param mapping: an mapping within the request body.
         """
         context = pecan.request.context
-        mapping = objects.Mapping(context, **mapping)
+        new_mapping = objects.Mapping(context, **mapping)
 
-        instance_uuid = mapping.instance_uuid
-        servers = clients.get_novaclient().servers.get(instance_uuid)
+        instance_uuid = new_mapping.instance_uuid
+        server = clients.get_novaclient().servers.get(instance_uuid)
+        if server.status != 'ERROR':
+            raise exception.InvalidInstanceStatus(instance=instance_uuid)
 
         base_options = {
             'project_id': context.tenant,
             'user_id': context.user
         }
-        mapping.update(base_options)
-        mapping.create(context)
+        new_mapping.update(base_options)
+        new_mapping.create(context)
 
         # Set the HTTP Location Header
         pecan.response.location = link.build_url('mappings',
