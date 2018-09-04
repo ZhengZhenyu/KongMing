@@ -35,32 +35,38 @@ from kongming import objects
 LOG = log.getLogger(__name__)
 
 
-class Mapping(base.APIBase):
-    """API representation of a mapping.
+class InstanceCPUMapping(base.APIBase):
+    """API representation of a InstanceCPUMapping.
 
     This class enforces type checking and value constraints, and converts
     between the internal object model and the API representation of
     a mapping.
     """
 
+    uuid = types.uuid
+    """The  UUID of the Instance CPU mapping"""
+
     instance_uuid = types.uuid
-    """The Instance UUID of the mapping that related to"""
+    """The Instance UUID of Instance CPU the mapping that related to"""
 
     project_id = types.uuid
-    """The project UUID of the mapping"""
+    """The project UUID of the Instance CPU mapping"""
 
     user_id = types.uuid
-    """The user UUID of the mapping"""
+    """The user UUID of the Instance CPU mapping"""
 
     cpu_mappings = wtypes.text
-    """The mapping"""
+    """The Instance CPU mapping"""
+
+    host = wtypes.text
+    """The host of the instance"""
 
     links = wsme.wsattr([link.Link], readonly=True)
     """A list containing a self link"""
 
     def __init__(self, **kwargs):
         self.fields = []
-        for field in objects.Mapping.fields:
+        for field in objects.InstanceCPUMapping.fields:
             # Skip fields we do not expose.
             if not hasattr(self, field):
                 continue
@@ -73,17 +79,19 @@ class Mapping(base.APIBase):
         url = pecan.request.public_url
         api_mapping.links = [
             link.Link.make_link(
-                'self', url, 'mappings', api_mapping.instance_uuid),
+                'self', url, 'instance_cpu_mappings',
+                api_mapping.instance_uuid),
             link.Link.make_link(
-                'bookmark', url, 'mappings', api_mapping.instance_uuid,
+                'bookmark', url, 'instance_cpu_mappings',
+                api_mapping.instance_uuid,
                 bookmark=True)
             ]
         return api_mapping
 
 
-class MappingPatchType(types.JsonPatchType):
+class InstanceCPUMappingPatchType(types.JsonPatchType):
 
-    _api_base = Mapping
+    _api_base = InstanceCPUMapping
 
     @staticmethod
     def internal_attrs():
@@ -91,42 +99,45 @@ class MappingPatchType(types.JsonPatchType):
         return defaults + ['/project_id', '/user_id', 'instance_uuid']
 
 
-class MappingCollection(base.APIBase):
-    """API representation of a collection of mappings."""
+class InstanceCPUMappingCollection(base.APIBase):
+    """API representation of a collection of InstanceCPUMapping."""
 
-    mappings = [Mapping]
+    mappings = [InstanceCPUMapping]
     """A list containing mapping objects"""
 
     @classmethod
     def convert_with_links(cls, obj_mappings):
         collection = cls()
-        collection.mappings = [Mapping.convert_with_links(obj_mapping)
-                               for obj_mapping in obj_mappings]
+        collection.mappings = [
+            InstanceCPUMapping.convert_with_links(obj_mapping)
+            for obj_mapping in obj_mappings]
         return collection
 
 
-class MappingControllerBase(rest.RestController):
+class InstanceCPUMapping(rest.RestController):
 
     _resource = None
 
     def _get_resource(self, uuid):
-        self._resource = objects.Mapping.get(pecan.request.context, uuid)
+        self._resource = objects.InstanceCPUMapping.get(
+            pecan.request.context, uuid)
         return self._resource
 
 
-class MappingsController(MappingControllerBase):
-    """REST controller for Mappings."""
+class InstanceCPUMappingsController(MappingControllerBase):
+    """REST controller for InstanceCPUMapping."""
 
-    @policy.authorize_wsgi("kongming:mapping", "get_one")
-    @expose.expose(Mapping, types.uuid)
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get_one")
+    @expose.expose(InstanceCPUMapping, types.uuid)
     def get_one(self, mapping_uuid):
         """Retrieve information about the given mapping.
 
         :param mapping_uuid: UUID of a mapping.
         """
-        db_mapping = objects.Mapping.get(pecan.request.context, flavor_uuid)
+        db_mapping = objects.InstanceCPUMapping.get(
+            pecan.request.context, mapping_uuid)
         if not pecan.request.context.is_admin:
-            return Mapping.convert_with_links(
+            return InstanceCPUMapping.convert_with_links(
                 db_mapping, fields=_DEFAULT_FLAVOR_RETURN_FIELDS)
         else:
-            return Mapping.convert_with_links(db_mapping)
+            return InstanceCPUMapping.convert_with_links(db_mapping)

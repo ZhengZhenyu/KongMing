@@ -118,11 +118,11 @@ class Connection(api.Connection):
         pass
 
     @oslo_db_api.retry_on_deadlock
-    def mapping_create(self, context, values):
-        if not values.get('instance_uuid'):
+    def instance_cpu_mapping_create(self, context, values):
+        if not values.get('uuid'):
             values['uuid'] = uuidutils.generate_uuid()
 
-        mapping = models.Mapping()
+        mapping = models.InstanceCPUMapping()
         mapping.update(values)
 
         with _session_for_write() as session:
@@ -130,26 +130,27 @@ class Connection(api.Connection):
                 session.add(mapping)
                 session.flush()
             except db_exc.DBDuplicateEntry:
-                raise exception.MappingAlreadyExists(uuid=values['uuid'])
+                raise exception.InstanceCPUMappingAlreadyExists(
+                    uuid=values['uuid'])
             return mapping
 
-    def mapping_get(self, context, uuid):
+    def instance_cpu_mapping_get(self, context, mapping_uuid):
         query = model_query(
             context,
-            models.Mapping).filter_by(uuid=uuid)
+            models.InstanceCPUMapping).filter_by(uuid=mapping_uuid)
         try:
             return query.one()
         except NoResultFound:
-            raise exception.MappingNotFound(uuid=uuid)
+            raise exception.InstanceCPUMappingNotFound(uuid=mapping_uuid)
 
-    def mapping_list(self, context, limit, marker, sort_key, sort_dir,
-                     project_only):
-        query = model_query(context, models.Mapping,
+    def instance_cpu_mapping_list(
+            self, context, limit, marker, sort_key, sort_dir, project_only):
+        query = model_query(context, models.InstanceCPUMapping,
                             project_only=project_only)
-        return _paginate_query(context, models.Mapping, limit, marker,
-                               sort_key, sort_dir, query)
+        return _paginate_query(context, models.InstanceCPUMapping, limit,
+                               marker, sort_key, sort_dir, query)
 
-    def mapping_update(self, context, uuid, values):
+    def instance_cpu_mapping_update(self, context, uuid, values):
         if 'instance_uuid' in values:
             msg = _("Cannot overwrite instance_uuid for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
@@ -160,30 +161,26 @@ class Connection(api.Connection):
             msg = _("Cannot overwrite id for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
 
-        try:
-            return self._do_update_mapping(context, uuid, values)
-        except db_exc.DBDuplicateEntry as e:
-            if 'name' in e.columns:
-                raise exception.DuplicateAcceleratorName(name=values['name'])
+        return self._do_update_instance_cpu_mapping(context, uuid, values)
 
     @oslo_db_api.retry_on_deadlock
-    def _do_update_mapping(self, context, uuid, values):
+    def _do_update_instance_cpu_mapping(self, context, uuid, values):
         with _session_for_write():
-            query = model_query(context, models.Mapping)
+            query = model_query(context, models.InstanceCPUMapping)
             query = add_identity_filter(query, uuid)
             try:
                 ref = query.with_lockmode('update').one()
             except NoResultFound:
-                raise exception.MappingNotFound(uuid=uuid)
+                raise exception.InstanceCPUMappingNotFound(uuid=uuid)
 
             ref.update(values)
         return ref
 
     @oslo_db_api.retry_on_deadlock
-    def mapping_destroy(self, context, uuid):
+    def instance_cpu_mapping_destroy(self, context, mapping_uuid):
         with _session_for_write():
-            query = model_query(context, models.Mapping)
-            query = add_identity_filter(query, uuid)
+            query = model_query(context, models.InstanceCPUMapping)
+            query = add_identity_filter(query, mapping_uuid)
             count = query.delete()
             if count != 1:
-                raise exception.MappingNotFound(uuid=uuid)
+                raise exception.InstanceCPUMappingNotFound(uuid=mapping_uuid)

@@ -21,7 +21,7 @@ from wsme import types as wtypes
 
 from kongming.api.controllers import base
 from kongming.api.controllers import link
-from kongming.api.controllers.v1 import mappings
+from kongming.api.controllers.v1 import instance_cpu_mappings
 from kongming.api import expose
 
 
@@ -31,18 +31,18 @@ class V1(base.APIBase):
     id = wtypes.text
     """The ID of the version"""
 
-    mappings = [link.Link]
+    instance_cpu_mappings = [link.Link]
     """Links to the mapping resource"""
 
     @staticmethod
     def convert():
         v1 = V1()
         v1.id = 'v1'
-        v1.mappings = [
+        v1.instance_cpu_mappings = [
             link.Link.make_link('self', pecan.request.public_url,
-                                'mappings', ''),
+                                'instance_cpu_mappings', ''),
             link.Link.make_link('bookmark', pecan.request.public_url,
-                                'mappings', '', bookmark=True)
+                                'instance_cpu_mappings', '', bookmark=True)
             ]
         return v1
 
@@ -50,7 +50,7 @@ class V1(base.APIBase):
 class Controller(rest.RestController):
     """Version 1 API controller root"""
 
-    mappings = mappings.MappingsController()
+    instance_cpu_mappings = instance_cpu_mappings.MappingsController()
 
     @expose.expose(V1)
     def get(self):

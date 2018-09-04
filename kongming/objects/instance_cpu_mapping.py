@@ -25,7 +25,8 @@ LOG = logging.getLogger(__name__)
 
 
 @base.KongmingObjectRegistry.register
-class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
+class InstanceCPUMapping(base.KongmingObject,
+                         object_base.VersionedObjectDictCompat):
     # Version 1.0: Initial version
     VERSION = '1.0'
 
@@ -42,7 +43,7 @@ class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
     }
 
     def __init__(self, *args, **kwargs):
-        super(Mapping, self).__init__(*args, **kwargs)
+        super(InstanceCPUMapping, self).__init__(*args, **kwargs)
         self._orig_projects = {}
 
     @staticmethod
@@ -65,27 +66,28 @@ class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
     def _from_db_object_list(db_objects, cls, context):
         """Converts a list of database entities to a list of formal objects"""
 
-        return [Mapping._from_db_object(context, cls(context), obj)
+        return [InstanceCPUMapping._from_db_object(context, cls(context), obj)
                 for obj in db_objects]
 
     @classmethod
     def list(cls, context):
         """Return a list of Mapping objects."""
-        db_mappings = cls.dbapi.mapping_list(context)
-        return Mapping._from_db_object_list(db_mappings, cls, context)
+        db_mappings = cls.dbapi.instance_cpu_mapping_list(context)
+        return InstanceCPUMapping._from_db_object_list(
+            db_mappings, cls, context)
 
     @classmethod
     def get(cls, context, mapping_uuid):
         """Find a Mapping and return a Mapping object."""
-        db_mapping = cls.dbapi.mapping_get(context, mapping_uuid)
-        mapping = Mapping._from_db_object(
+        db_mapping = cls.dbapi.instance_cpu_mapping_get(context, mapping_uuid)
+        mapping = InstanceCPUMapping._from_db_object(
             context, cls(context), db_mapping)
         return mapping
 
     def create(self, context=None):
         """Create a Mapping record in the DB."""
         values = self.obj_get_changes()
-        db_mapping = self.dbapi.mapping_create(context, values)
+        db_mapping = self.dbapi.instance_cpu_mapping_create(context, values)
         self._from_db_object(context, self, db_mapping)
 
     def destroy(self, context=None):
@@ -97,4 +99,5 @@ class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
         updates = self.obj_get_changes()
 
         if updates:
-            self.dbapi.mapping_update(context, self.uuid, updates)
+            self.dbapi.instance_cpu_mapping_update(
+                context, self.uuid, updates)

@@ -41,24 +41,25 @@ class Connection(object):
     def __init__(self):
         """Constructor."""
 
-    # Mappings
+    # InstanceCPUMapping
     @abc.abstractmethod
-    def list(cls, context):
+    def instance_cpu_mapping_list(
+            self, context, limit, marker, sort_key, sort_dir, project_only):
         """Return a list of Mapping objects."""
 
     @abc.abstractmethod
-    def get(cls, context, mapping_uuid):
+    def instance_cpu_mapping_get(cls, context, mapping_uuid):
         """Find a Mapping and return a Mapping object."""
         return mapping
 
     @abc.abstractmethod
-    def create(self, context=None):
+    def instance_cpu_mapping_create(self, context=None):
         """Create a Mapping record in the DB."""
 
     @abc.abstractmethod
-    def destroy(self, context=None):
+    def instance_cpu_mapping_destroy(self, context=None):
         """Delete the Mapping from the DB."""
 
     @abc.abstractmethod
-    def save(self, context=None):
+    def instance_cpu_mapping_update(self, context, uuid, values):
         """Update a Mapping"""

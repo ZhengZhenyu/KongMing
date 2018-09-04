@@ -52,15 +52,15 @@ class KongmingBase(models.TimestampMixin, models.ModelBase):
 Base = declarative_base(cls=KongmingBase)
 
 
-class Mapping(Base):
-    """Represents the mappings."""
+class InstanceCPUMapping(Base):
+    """Represents the InstanceCPUMapping."""
 
-    __tablename__ = 'mappings'
+    __tablename__ = 'instance_cpu_mappings'
     __table_args__ = (
         schema.UniqueConstraint('instance_uuid',
-                                name='uniq_mappings0instance_uuid'),
+                                name='uniq_instcpumappings0instance_uuid'),
         schema.UniqueConstraint('uuid',
-                                name='uniq_mappings0uuid'),
+                                name='uniq_instcpumappings0uuid'),
         table_args()
     )
 

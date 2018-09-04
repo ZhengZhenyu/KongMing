@@ -25,4 +25,4 @@ def register_all():
     # NOTE(danms): You must make sure your object gets imported in this
     # function in order for it to be registered by services that may
     # need to receive it via RPC.
-    __import__('kongming.objects.mapping')
+    __import__('kongming.objects.instance_cpu_mapping')
