@@ -117,115 +117,16 @@ class MappingControllerBase(rest.RestController):
 class MappingsController(MappingControllerBase):
     """REST controller for Mappings."""
 
-    @policy.authorize_wsgi("kongming:mapping", "create", False)
-    @expose.expose(Mapping, body=types.jsontype,
-                   status_code=http_client.CREATED)
-    def post(self, mapping):
-        """Create a new mapping.
-
-        :param mapping: an mapping within the request body.
-        """
-        context = pecan.request.context
-        new_mapping = objects.Mapping(context, **mapping)
-
-        instance_uuid = new_mapping.instance_uuid
-        server = clients.get_novaclient().servers.get(instance_uuid)
-        if server.status != 'ERROR':
-            raise exception.InvalidInstanceStatus(instance=instance_uuid)
-
-        base_options = {
-            'project_id': context.tenant,
-            'user_id': context.user
-        }
-        new_mapping.update(base_options)
-        new_mapping.create(context)
-
-        # Set the HTTP Location Header
-        pecan.response.location = link.build_url('mappings',
-                                                 mapping.instance_uuid)
-        return Mapping.convert_with_links(mapping)
-
-    @policy.authorize_wsgi("kongming:mapping", "get")
+    @policy.authorize_wsgi("kongming:mapping", "get_one")
     @expose.expose(Mapping, types.uuid)
-    def get_one(self, uuid):
-        """Retrieve information about the given maping.
+    def get_one(self, mapping_uuid):
+        """Retrieve information about the given mapping.
 
-        :param uuid: UUID of an accelerator.
+        :param mapping_uuid: UUID of a mapping.
         """
-        mapping = self._resource or self._get_resource(uuid)
-        return Mapping.convert_with_links(mapping)
-
-    @expose.expose(MappingCollection, int, types.uuid, wtypes.text,
-                   wtypes.text, types.boolean)
-    def get_all(self, limit=None, marker=None, sort_key='id', sort_dir='asc',
-                all_tenants=None):
-        """Retrieve a list of mappings.
-
-        :param limit: Optional, to determinate the maximum number of
-                      accelerators to return.
-        :param marker: Optional, to display a list of accelerators after this
-                       marker.
-        :param sort_key: Optional, to sort the returned accelerators list by
-                         this specified key value.
-        :param sort_dir: Optional, to return a list of accelerators with this
-                         sort direction.
-        :param all_tenants: Optional, allows administrators to see the
-                            accelerators owned by all tenants, otherwise only
-                            the accelerators associated with the calling
-                            tenant are included in the response.
-        """
-        context = pecan.request.context
-        project_only = True
-        if context.is_admin and all_tenants:
-            project_only = False
-
-        marker_obj = None
-        if marker:
-            marker_obj = objects.Mapping.get(context, marker)
-
-        mappings = objects.Mapping.list(context, limit, marker_obj,
-                                            sort_key, sort_dir, project_only)
-        return MappingCollection.convert_with_links(obj_accs)
-
-    @policy.authorize_wsgi("kongming:mapping", "update")
-    @expose.expose(Mapping, types.uuid, body=[MappingPatchType])
-    def patch(self, uuid, patch):
-        """Update a Mapping.
-
-        :param uuid: UUID of an accelerator.
-        :param patch: a json PATCH document to apply to this mapping.
-        """
-        obj_acc = self._resource or self._get_resource(uuid)
-        try:
-            mapping = Mapping(
-                **api_utils.apply_jsonpatch(obj_acc.as_dict(), patch))
-        except api_utils.JSONPATCH_EXCEPTIONS as e:
-            raise exception.PatchError(patch=patch, reason=e)
-
-        # Update only the fields that have changed
-        for field in objects.Mapping.fields:
-            try:
-                patch_val = getattr(api_acc, field)
-            except AttributeError:
-                # Ignore fields that aren't exposed in the API
-                continue
-            if patch_val == wtypes.Unset:
-                patch_val = None
-            if obj_acc[field] != patch_val:
-                obj_acc[field] = patch_val
-
-        context = pecan.request.context
-        #new_mapping = pecan.request.conductor_api.accelerator_update(context,
-        #                                                         obj_acc)
-        #return Accelerator.convert_with_links(new_acc)
-
-    @policy.authorize_wsgi("kongming:mapping", "delete")
-    @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
-    def delete(self, uuid):
-        """Delete a mapping.
-
-        :param uuid: UUID of instance that the mapping related to.
-        """
-        obj_acc = self._resource or self._get_resource(uuid)
-        context = pecan.request.context
-        #pecan.request.conductor_api.accelerator_delete(context, obj_acc)
+        db_mapping = objects.Mapping.get(pecan.request.context, flavor_uuid)
+        if not pecan.request.context.is_admin:
+            return Mapping.convert_with_links(
+                db_mapping, fields=_DEFAULT_FLAVOR_RETURN_FIELDS)
+        else:
+            return Mapping.convert_with_links(db_mapping)

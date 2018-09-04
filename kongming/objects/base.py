@@ -21,10 +21,12 @@ from kongming.objects import fields as object_fields
 
 
 class KongmingObjectRegistry(object_base.VersionedObjectRegistry):
+    notification_classes = []
+
     def registration_hook(self, cls, index):
         # NOTE(jroll): blatantly stolen from nova
         # NOTE(danms): This is called when an object is registered,
-        # and is responsible for maintaining kongming.objects.$OBJECT
+        # and is responsible for maintaining mogan.objects.$OBJECT
         # as the highest-versioned implementation of a given object.
         version = versionutils.convert_version_to_tuple(cls.VERSION)
         if not hasattr(objects, cls.obj_name()):
@@ -34,6 +36,25 @@ class KongmingObjectRegistry(object_base.VersionedObjectRegistry):
                 getattr(objects, cls.obj_name()).VERSION)
             if version >= cur_version:
                 setattr(objects, cls.obj_name(), cls)
+
+    @classmethod
+    def register_notification(cls, notification_cls):
+        """Register a class as notification.
+        Use only to register concrete notification or payload classes,
+        do not register base classes intended for inheritance only.
+        """
+        cls.register_if(False)(notification_cls)
+        cls.notification_classes.append(notification_cls)
+        return notification_cls
+
+    @classmethod
+    def register_notification_objects(cls):
+        """Register previously decorated notification as normal ovos.
+        This is not intended for production use but only for testing and
+        document generation purposes.
+        """
+        for notification_cls in cls.notification_classes:
+            cls.register(notification_cls)
 
 
 class KongmingObject(object_base.VersionedObject):
@@ -59,84 +80,50 @@ class KongmingObject(object_base.VersionedObject):
                     for k in self.fields
                     if hasattr(self, k))
 
+    def obj_refresh(self, loaded_object):
+        """Applies updates for objects that inherit from base. MoganObject.
+
+        Checks for updated attributes in an object. Updates are applied from
+        the loaded object column by column in comparison with the current
+        object.
+        """
+        for field in self.fields:
+            if (self.obj_attr_is_set(field) and
+                    self[field] != loaded_object[field]):
+                self[field] = loaded_object[field]
+
     @staticmethod
-    def _from_db_object(obj, db_obj):
+    def _from_db_object(context, obj, db_object):
         """Converts a database entity to a formal object.
 
+        :param context: security context
         :param obj: An object of the class.
-        :param db_obj: A DB model of the object
+        :param db_object: A DB model of the object
         :return: The object of the class with the database entity added
         """
 
         for field in obj.fields:
-            obj[field] = db_obj[field]
+            obj[field] = db_object[field]
 
         obj.obj_reset_changes()
         return obj
 
     @classmethod
-    def _from_db_object_list(cls, db_objs, context):
-        """Converts a list of database entities to a list of formal objects."""
-        objs = []
-        for db_obj in db_objs:
-            objs.append(cls._from_db_object(cls(context), db_obj))
-        return objs
+    def _from_db_object_list(cls, context, db_objects):
+        """Returns objects corresponding to database entities.
+
+        Returns a list of formal objects of this class that correspond to
+        the list of database entities.
+
+        :param context: security context
+        :param db_objects: A  list of DB models of the object
+        :returns: A list of objects corresponding to the database entities
+        """
+        return [cls._from_db_object(context, cls(context), db_obj)
+                for db_obj in db_objects]
 
 
 class KongmingObjectSerializer(object_base.VersionedObjectSerializer):
     # Base class to use for object hydration
     OBJ_BASE_CLASS = KongmingObject
 
-
-KongmingObjectDictCompat = object_base.VersionedObjectDictCompat
-
-
-class KongmingPersistentObject(object):
-    """Mixin class for Persistent objects.
-
-    This adds the fields that we use in common for most persistent objects.
-    """
-    fields = {
-        'created_at': object_fields.DateTimeField(nullable=True),
-        'updated_at': object_fields.DateTimeField(nullable=True),
-        'deleted_at': object_fields.DateTimeField(nullable=True),
-        'deleted': object_fields.BooleanField(default=False),
-        }
-
-
-class ObjectListBase(object_base.ObjectListBase):
-
-    @classmethod
-    def _obj_primitive_key(cls, field):
-        return 'kongming_object.%s' % field
-
-    @classmethod
-    def _obj_primitive_field(cls, primitive, field,
-                             default=object_fields.UnspecifiedDefault):
-        key = cls._obj_primitive_key(field)
-        if default == object_fields.UnspecifiedDefault:
-            return primitive[key]
-        else:
-            return primitive.get(key, default)
-
-
-def obj_to_primitive(obj):
-    """Recursively turn an object into a python primitive.
-
-    A KongmingObject becomes a dict, and anything that implements ObjectListBase
-    becomes a list.
-    """
-    if isinstance(obj, ObjectListBase):
-        return [obj_to_primitive(x) for x in obj]
-    elif isinstance(obj, KongmingObject):
-        result = {}
-        for key in obj.obj_fields:
-            if obj.obj_attr_is_set(key) or key in obj.obj_extra_fields:
-                result[key] = obj_to_primitive(getattr(obj, key))
-        return result
-    elif isinstance(obj, netaddr.IPAddress):
-        return str(obj)
-    elif isinstance(obj, netaddr.IPNetwork):
-        return str(obj)
-    else:
-        return obj

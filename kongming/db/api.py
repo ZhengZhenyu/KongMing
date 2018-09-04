@@ -41,24 +41,24 @@ class Connection(object):
     def __init__(self):
         """Constructor."""
 
-    # accelerator
+    # Mappings
     @abc.abstractmethod
-    def accelerator_create(self, context, values):
-        """Create a new accelerator."""
+    def list(cls, context):
+        """Return a list of Mapping objects."""
 
     @abc.abstractmethod
-    def accelerator_get(self, context, uuid):
-        """Get requested accelerator."""
+    def get(cls, context, mapping_uuid):
+        """Find a Mapping and return a Mapping object."""
+        return mapping
 
     @abc.abstractmethod
-    def accelerator_list(self, context, limit, marker, sort_key, sort_dir,
-                         project_only):
-        """Get requested list of accelerators."""
+    def create(self, context=None):
+        """Create a Mapping record in the DB."""
 
     @abc.abstractmethod
-    def accelerator_update(self, context, uuid, values):
-        """Update an accelerator."""
+    def destroy(self, context=None):
+        """Delete the Mapping from the DB."""
 
     @abc.abstractmethod
-    def accelerator_delete(self, context, uuid):
-        """Delete an accelerator."""
+    def save(self, context=None):
+        """Update a Mapping"""

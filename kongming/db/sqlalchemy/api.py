@@ -93,7 +93,10 @@ def add_identity_filter(query, value):
         raise exception.InvalidIdentity(identity=value)
 
 
-def _paginate_query(context, model, limit, marker, sort_key, sort_dir, query):
+def _paginate_query(context, model, limit=None, marker=None, sort_key=None,
+                    sort_dir=None, query=None):
+    if not query:
+        query = model_query(context, model)
     sort_keys = ['id']
     if sort_key and sort_key not in sort_keys:
         sort_keys.insert(0, sort_key)
@@ -114,9 +117,10 @@ class Connection(api.Connection):
     def __init__(self):
         pass
 
+    @oslo_db_api.retry_on_deadlock
     def mapping_create(self, context, values):
         if not values.get('instance_uuid'):
-            raise exception.NoInstanceUUIDProvided()
+            values['uuid'] = uuidutils.generate_uuid()
 
         mapping = models.Mapping()
         mapping.update(values)
@@ -149,6 +153,12 @@ class Connection(api.Connection):
         if 'instance_uuid' in values:
             msg = _("Cannot overwrite instance_uuid for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
+        if 'uuid' in values:
+            msg = _("Cannot overwrite uuid for an existing Mapping.")
+            raise exception.InvalidParameterValue(err=msg)
+        if 'id' in values:
+            msg = _("Cannot overwrite id for an existing Mapping.")
+            raise exception.InvalidParameterValue(err=msg)
 
         try:
             return self._do_update_mapping(context, uuid, values)
@@ -170,7 +180,7 @@ class Connection(api.Connection):
         return ref
 
     @oslo_db_api.retry_on_deadlock
-    def mapping_delete(self, context, uuid):
+    def mapping_destroy(self, context, uuid):
         with _session_for_write():
             query = model_query(context, models.Mapping)
             query = add_identity_filter(query, uuid)

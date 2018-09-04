@@ -78,12 +78,11 @@ LOG = log.getLogger(__name__)
 
 
 def prepare_service(argv=None):
+    argv = [] if argv is None else argv
     log.register_options(CONF)
-    log.set_defaults(default_log_levels=CONF.default_log_levels)
-
-    argv = argv or []
+    log.set_defaults(default_log_levels=CONF.default_log_levels) + [
+        'eventlet.wsgi.server=INFO', 'neutronclient=WARNING']
     config.parse_args(argv)
-
     log.setup(CONF, 'kongming')
     objects.register_all()
 

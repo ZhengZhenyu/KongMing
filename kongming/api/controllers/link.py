@@ -46,3 +46,10 @@ class Link(base.APIBase):
         href = build_url(resource, resource_args,
                          bookmark=bookmark, base_url=url)
         return Link(href=href, rel=rel_name, type=type)
+
+    @classmethod
+    def sample(cls):
+        sample = cls(href="http://localhost:6688/types/"
+                          "eaaca217-e7d8-47b4-bb41-3f99f20eed89",
+                     rel="bookmark")
+        return sample

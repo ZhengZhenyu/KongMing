@@ -22,7 +22,7 @@ try:
 except ImportError:
     pass
 
-from cyborg.db.sqlalchemy import models
+from kongming.db.sqlalchemy import models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -10,9 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import pecan
+import sys
 
 from oslo_config import cfg
+import pecan
 
 from kongming.api import config
 from kongming.api import hooks
@@ -26,16 +27,15 @@ def get_pecan_config():
 
 
 def setup_app(pecan_config=None, extra_hooks=None):
+    if not pecan_config:
+        pecan_config = get_pecan_config()
+    pecan.configuration.set_config(dict(pecan_config), overwrite=True)
+
     app_hooks = [hooks.ConfigHook(),
                  hooks.ContextHook(pecan_config.app.acl_public_routes),
                  hooks.PublicUrlHook()]
     if extra_hooks:
         app_hooks.extend(extra_hooks)
-
-    if not pecan_config:
-        pecan_config = get_pecan_config()
-
-    pecan.configuration.set_config(dict(pecan_config), overwrite=True)
 
     app = pecan.make_app(
         pecan_config.app.root,

@@ -36,37 +36,65 @@ class Mapping(base.KongmingObject, object_base.VersionedObjectDictCompat):
         'instance_uuid': object_fields.UUIDField(nullable=False),
         'project_id': object_fields.UUIDField(nullable=False),
         'user_id': object_fields.UUIDField(nullable=False),
+        'uuid': object_fields.UUIDField(nullable=False),
         'cpu_mappings': object_fields.StringField(nullable=True),
         'host': object_fields.StringField(nullable=True)
     }
 
-    def create(self, context):
-        """Create an Mapping record in the DB."""
+    def __init__(self, *args, **kwargs):
+        super(Mapping, self).__init__(*args, **kwargs)
+        self._orig_projects = {}
+
+    @staticmethod
+    def _from_db_object(context, mapping, db_mapping, expected_attrs=None):
+        if expected_attrs is None:
+            expected_attrs = []
+
+        for name, field in mapping.fields.items():
+            if name in OPTIONAL_FIELDS:
+                continue
+            value = db_mapping[name]
+            if isinstance(field, object_fields.IntegerField):
+                value = value if value is not None else 0
+            mapping[name] = value
+
+        mapping.obj_reset_changes()
+        return mapping
+
+    @staticmethod
+    def _from_db_object_list(db_objects, cls, context):
+        """Converts a list of database entities to a list of formal objects"""
+
+        return [Mapping._from_db_object(context, cls(context), obj)
+                for obj in db_objects]
+
+    @classmethod
+    def list(cls, context):
+        """Return a list of Mapping objects."""
+        db_mappings = cls.dbapi.mapping_list(context)
+        return Mapping._from_db_object_list(db_mappings, cls, context)
+
+    @classmethod
+    def get(cls, context, mapping_uuid):
+        """Find a Mapping and return a Mapping object."""
+        db_mapping = cls.dbapi.mapping_get(context, mapping_uuid)
+        mapping = Mapping._from_db_object(
+            context, cls(context), db_mapping)
+        return mapping
+
+    def create(self, context=None):
+        """Create a Mapping record in the DB."""
         values = self.obj_get_changes()
-        db_acc = self.dbapi.mapping_create(context, values)
-        self._from_db_object(self, db_acc)
+        db_mapping = self.dbapi.mapping_create(context, values)
+        self._from_db_object(context, self, db_mapping)
 
-    @classmethod
-    def get(cls, context, uuid):
-        """Find a DB Accelerator and return an Obj Accelerator."""
-        db_acc = cls.dbapi.accelerator_get(context, uuid)
-        obj_acc = cls._from_db_object(cls(context), db_acc)
-        return obj_acc
-
-    @classmethod
-    def list(cls, context, limit, marker, sort_key, sort_dir, project_only):
-        """Return a list of Accelerator objects."""
-        db_accs = cls.dbapi.accelerator_list(context, limit, marker, sort_key,
-                                             sort_dir, project_only)
-        return cls._from_db_object_list(db_accs, context)
-
-    def save(self, context):
-        """Update an Accelerator record in the DB."""
-        updates = self.obj_get_changes()
-        db_acc = self.dbapi.accelerator_update(context, self.uuid, updates)
-        self._from_db_object(self, db_acc)
-
-    def destroy(self, context):
-        """Delete the Accelerator from the DB."""
-        self.dbapi.accelerator_delete(context, self.uuid)
+    def destroy(self, context=None):
+        """Delete the Mapping from the DB."""
+        self.dbapi.mapping_destroy(context, self.uuid)
         self.obj_reset_changes()
+
+    def save(self, context=None):
+        updates = self.obj_get_changes()
+
+        if updates:
+            self.dbapi.mapping_update(context, self.uuid, updates)

@@ -31,6 +31,7 @@ def main():
 
     # Build and start the WSGI app
     launcher = kongming_service.process_launcher()
-    server = kongming_service.WSGIService('kongming_api', CONF.api.enable_ssl_api)
+    server = kongming_service.WSGIService('kongming_api',
+                                          CONF.api.enable_ssl_api)
     launcher.launch_service(server, workers=server.workers)
     launcher.wait()
