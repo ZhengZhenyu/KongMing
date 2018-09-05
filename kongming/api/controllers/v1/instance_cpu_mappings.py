@@ -43,9 +43,6 @@ class InstanceCPUMapping(base.APIBase):
     a mapping.
     """
 
-    uuid = types.uuid
-    """The  UUID of the Instance CPU mapping"""
-
     instance_uuid = types.uuid
     """The Instance UUID of Instance CPU the mapping that related to"""
 

@@ -59,8 +59,6 @@ class InstanceCPUMapping(Base):
     __table_args__ = (
         schema.UniqueConstraint('instance_uuid',
                                 name='uniq_instcpumappings0instance_uuid'),
-        schema.UniqueConstraint('uuid',
-                                name='uniq_instcpumappings0uuid'),
         table_args()
     )
 
@@ -68,6 +66,5 @@ class InstanceCPUMapping(Base):
     instance_uuid = Column(String(36), nullable=False)
     project_id = Column(String(36), nullable=False)
     user_id = Column(String(36), nullable=False)
-    uuid = Column(String(36), nullable=False)
     host = Column(String(255), nullable=True)
     cpu_mappings = Column(String(255), nullable=True)

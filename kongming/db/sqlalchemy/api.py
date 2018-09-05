@@ -119,8 +119,8 @@ class Connection(api.Connection):
 
     @oslo_db_api.retry_on_deadlock
     def instance_cpu_mapping_create(self, context, values):
-        if not values.get('uuid'):
-            values['uuid'] = uuidutils.generate_uuid()
+        if not values.get('instance_uuid'):
+            values['instance_uuid'] = uuidutils.generate_uuid()
 
         mapping = models.InstanceCPUMapping()
         mapping.update(values)
@@ -153,9 +153,6 @@ class Connection(api.Connection):
     def instance_cpu_mapping_update(self, context, uuid, values):
         if 'instance_uuid' in values:
             msg = _("Cannot overwrite instance_uuid for an existing Mapping.")
-            raise exception.InvalidParameterValue(err=msg)
-        if 'uuid' in values:
-            msg = _("Cannot overwrite uuid for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
         if 'id' in values:
             msg = _("Cannot overwrite id for an existing Mapping.")
