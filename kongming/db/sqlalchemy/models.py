@@ -67,4 +67,5 @@ class InstanceCPUMapping(Base):
     project_id = Column(String(36), nullable=False)
     user_id = Column(String(36), nullable=False)
     host = Column(String(255), nullable=True)
+    status = Column(String(255), nullable=True)
     cpu_mappings = Column(String(255), nullable=True)

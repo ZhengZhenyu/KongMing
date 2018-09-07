@@ -38,6 +38,7 @@ def upgrade():
         sa.Column('project_id', sa.String(length=36), nullable=False),
         sa.Column('user_id', sa.String(length=36), nullable=False),
         sa.Column('host', sa.String(length=255), nullable=True),
+        sa.Column('status', sa.String(length=255), nullable=True),
         sa.Column('cpu_mappings', sa.String(length=255), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('uuid', name='uniq_mappings0uuid'),

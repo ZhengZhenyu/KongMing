@@ -58,6 +58,9 @@ class InstanceCPUMapping(base.APIBase):
     host = wtypes.text
     """The host of the instance"""
 
+    status = wtypes.text
+    """The status of the instance cpu mapping"""
+
     links = wsme.wsattr([link.Link], readonly=True)
     """A list containing a self link"""
 

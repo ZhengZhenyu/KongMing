@@ -39,7 +39,8 @@ class InstanceCPUMapping(base.KongmingObject,
         'user_id': object_fields.UUIDField(nullable=False),
         'uuid': object_fields.UUIDField(nullable=False),
         'cpu_mappings': object_fields.StringField(nullable=True),
-        'host': object_fields.StringField(nullable=True)
+        'host': object_fields.StringField(nullable=True),
+        'status': object_fields.StringField(nullable=True)
     }
 
     def __init__(self, *args, **kwargs):
