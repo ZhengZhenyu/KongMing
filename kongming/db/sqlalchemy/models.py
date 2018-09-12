@@ -58,7 +58,7 @@ class InstanceCPUMapping(Base):
     __tablename__ = 'instance_cpu_mappings'
     __table_args__ = (
         schema.UniqueConstraint('instance_uuid',
-                                name='uniq_instcpumappings0instance_uuid'),
+                                name='uniq_mappings0instance_uuid'),
         table_args()
     )
 

@@ -37,7 +37,6 @@ class InstanceCPUMapping(base.KongmingObject,
         'instance_uuid': object_fields.UUIDField(nullable=False),
         'project_id': object_fields.UUIDField(nullable=False),
         'user_id': object_fields.UUIDField(nullable=False),
-        'uuid': object_fields.UUIDField(nullable=False),
         'cpu_mappings': object_fields.StringField(nullable=True),
         'host': object_fields.StringField(nullable=True),
         'status': object_fields.StringField(nullable=True)
@@ -93,7 +92,7 @@ class InstanceCPUMapping(base.KongmingObject,
 
     def destroy(self, context=None):
         """Delete the Mapping from the DB."""
-        self.dbapi.mapping_destroy(context, self.uuid)
+        self.dbapi.instance_cpu_mapping_destroy(context, self.uuid)
         self.obj_reset_changes()
 
     def save(self, context=None):

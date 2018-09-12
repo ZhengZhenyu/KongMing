@@ -41,7 +41,8 @@ def upgrade():
         sa.Column('status', sa.String(length=255), nullable=True),
         sa.Column('cpu_mappings', sa.String(length=255), nullable=True),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('uuid', name='uniq_mappings0uuid'),
+        sa.UniqueConstraint('instance_uuid',
+                            name='uniq_mappings0instance_uuid'),
         mysql_ENGINE='InnoDB',
         mysql_DEFAULT_CHARSET='UTF8'
     )
