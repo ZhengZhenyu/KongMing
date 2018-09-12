@@ -141,7 +141,9 @@ class InstanceCPUMappingsController(rest.RestController):
         mapping_dict = {
             'instance_uuid': mapping['instance_uuid'],
             'cpu_mappings': mapping['cpu_mappings'],
-            'wait_until_active': False
+            'wait_until_active': False,
+            'project_id': pecan.request.context.project_id,
+            'user_id': pecan.request.context.user_id
         }
 
         wait_until_active = mapping.get('wait_until_active')
