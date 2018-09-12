@@ -50,7 +50,8 @@ class V1(base.APIBase):
 class Controller(rest.RestController):
     """Version 1 API controller root"""
 
-    instance_cpu_mappings = instance_cpu_mappings.MappingsController()
+    instance_cpu_mappings = \
+        instance_cpu_mappings.InstanceCPUMappingsController()
 
     @expose.expose(V1)
     def get(self):
