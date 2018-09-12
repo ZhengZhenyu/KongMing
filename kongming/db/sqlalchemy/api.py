@@ -88,7 +88,7 @@ def add_identity_filter(query, value):
     if strutils.is_int_like(value):
         return query.filter_by(id=value)
     elif uuidutils.is_uuid_like(value):
-        return query.filter_by(uuid=value)
+        return query.filter_by(instance_uuid=value)
     else:
         raise exception.InvalidIdentity(identity=value)
 
@@ -137,7 +137,8 @@ class Connection(api.Connection):
     def instance_cpu_mapping_get(self, context, instance_uuid):
         query = model_query(
             context,
-            models.InstanceCPUMapping).filter_by(uuid=instance_uuid)
+            models.InstanceCPUMapping).filter_by(
+            instance_uuid=instance_uuid)
         try:
             return query.one()
         except NoResultFound:
