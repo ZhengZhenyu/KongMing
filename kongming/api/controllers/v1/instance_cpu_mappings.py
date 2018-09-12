@@ -172,7 +172,7 @@ class InstanceCPUMappingsController(rest.RestController):
                                                  new_mapping.instance_uuid)
         return InstanceCPUMapping.convert_with_links(new_mapping)
 
-    @policy.authorize_wsgi("kongming:instace_cpu_mapping", "delete")
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "delete")
     @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
     def delete(self, mapping_uuid):
         """Delete a cpu mapping.
