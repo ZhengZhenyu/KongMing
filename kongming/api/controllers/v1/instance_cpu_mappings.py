@@ -136,7 +136,7 @@ class InstanceCPUMappingsController(rest.RestController):
         mappings = objects.InstanceCPUMapping.list(pecan.request.context)
         return InstanceCPUMappingCollection.convert_with_links(mappings)
 
-    @policy.authorize_wsgi("kongming:instace_cpu_mapping", "create")
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "create")
     @expose.expose(InstanceCPUMapping, body=types.jsontype,
                    status_code=http_client.CREATED)
     def post(self, mapping):
