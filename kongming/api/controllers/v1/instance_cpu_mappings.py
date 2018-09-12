@@ -115,17 +115,7 @@ class InstanceCPUMappingCollection(base.APIBase):
         return collection
 
 
-class InstanceCPUMappingBase(rest.RestController):
-
-    _resource = None
-
-    def _get_resource(self, uuid):
-        self._resource = objects.InstanceCPUMapping.get(
-            pecan.request.context, uuid)
-        return self._resource
-
-
-class InstanceCPUMappingsController(InstanceCPUMappingBase):
+class InstanceCPUMappingsController(rest.RestController):
     """REST controller for InstanceCPUMapping."""
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get_one")

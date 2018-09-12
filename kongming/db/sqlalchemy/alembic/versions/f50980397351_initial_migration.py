@@ -30,7 +30,7 @@ import sqlalchemy as sa
 
 def upgrade():
     op.create_table(
-        'mappings',
+        'instance_cpu_mappings',
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
         sa.Column('id', sa.Integer(), nullable=False),
