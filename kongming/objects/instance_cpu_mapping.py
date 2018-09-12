@@ -52,8 +52,6 @@ class InstanceCPUMapping(base.KongmingObject,
             expected_attrs = []
 
         for name, field in mapping.fields.items():
-            if name in OPTIONAL_FIELDS:
-                continue
             value = db_mapping[name]
             if isinstance(field, object_fields.IntegerField):
                 value = value if value is not None else 0

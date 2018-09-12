@@ -87,8 +87,9 @@ class ConfigInvalid(KongMingException):
     _msg_fmt = _("Invalid configuration file. %(error_msg)s")
 
 
-class AcceleratorAlreadyExists(KongMingException):
-    _msg_fmt = _("Accelerator with uuid %(uuid)s already exists.")
+class InstanceCPUMappingAlreadyExists(KongMingException):
+    _msg_fmt = _("Instance CPU mapping for instance with uuid %(uuid)s "
+                 "already exists.")
 
 
 class DeployableAlreadyExists(KongMingException):
@@ -136,8 +137,9 @@ class NotFound(KongMingException):
     code = http_client.NOT_FOUND
 
 
-class AcceleratorNotFound(NotFound):
-    _msg_fmt = _("Accelerator %(uuid)s could not be found.")
+class InstanceCPUMappingNotFound(NotFound):
+    _msg_fmt = _("Instance CPU mapping for instance: %(uuid)s could "
+                 "not be found.")
 
 
 class DeployableNotFound(NotFound):
