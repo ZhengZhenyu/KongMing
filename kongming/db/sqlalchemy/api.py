@@ -94,7 +94,7 @@ def add_identity_filter(query, value):
 
 
 def _paginate_query(context, model, limit=None, marker=None, sort_key=None,
-                    sort_dir=None, query=None):
+                    sort_dir=None, query=None, project_only=True):
     if not query:
         query = model_query(context, model)
     sort_keys = ['id']
@@ -144,8 +144,9 @@ class Connection(api.Connection):
         except NoResultFound:
             raise exception.InstanceCPUMappingNotFound(uuid=instance_uuid)
 
-    def instance_cpu_mapping_list(
-            self, context, limit, marker, sort_key, sort_dir, project_only):
+    def instance_cpu_mapping_list( self, context, limit=1000, marker=None,
+                                   sort_key=None, sort_dir=None,
+                                   project_only=True):
         query = model_query(context, models.InstanceCPUMapping,
                             project_only=project_only)
         return _paginate_query(context, models.InstanceCPUMapping, limit,
