@@ -75,16 +75,16 @@ default_policies = [
 #             depend on their existence throughout the code.
 
 mapping_policies = [
-    policy.RuleDefault('kongming:mapping:get',
+    policy.RuleDefault('kongming:instance_cpu_mapping:get',
                        'rule:default',
                        description='Retrieve Mapping records'),
-    policy.RuleDefault('kongming:mapping:create',
+    policy.RuleDefault('kongming:instance_cpu_mapping:create',
                        'rule:allow',
                        description='Create Mapping records'),
-    policy.RuleDefault('kongming:mapping:delete',
+    policy.RuleDefault('kongming:instance_cpu_mapping:delete',
                        'rule:default',
                        description='Delete Mapping records'),
-    policy.RuleDefault('kongming:mapping:update',
+    policy.RuleDefault('kongming:instance_cpu_mapping:update',
                        'rule:default',
                        description='Update Mapping records'),
 ]
@@ -170,7 +170,7 @@ def authorize_wsgi(api_name, act=None, need_target=True):
            from mogan.common import policy
            class ServersController(rest.RestController):
                ....
-               @policy.authorize_wsgi("mogan:server", "delete")
+               @policy.authorize_wsgi("kingming:mapping", "delete")
                @wsme_pecan.wsexpose(None, types.uuid_or_name, status_code=204)
                def delete(self, bay_ident):
                    ...

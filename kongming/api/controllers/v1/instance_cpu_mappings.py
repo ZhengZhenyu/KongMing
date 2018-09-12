@@ -118,7 +118,7 @@ class InstanceCPUMappingCollection(base.APIBase):
 class InstanceCPUMappingsController(rest.RestController):
     """REST controller for InstanceCPUMapping."""
 
-    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get_one")
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get")
     @expose.expose(InstanceCPUMapping, types.uuid)
     def get_one(self, instance_uuid):
         """Retrieve information about the given mapping.
@@ -128,6 +128,13 @@ class InstanceCPUMappingsController(rest.RestController):
         db_mapping = objects.InstanceCPUMapping.get(
             pecan.request.context, instance_uuid)
         return InstanceCPUMapping.convert_with_links(db_mapping)
+
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get")
+    @expose.expose(InstanceCPUMappingCollection)
+    def get_all(self):
+        """Retrieve a list of instance_cpu_mappings."""
+        mappings = objects.InstanceCPUMapping.list(pecan.request.context)
+        return FlavorCollection.convert_with_links(mappings)
 
     @policy.authorize_wsgi("kongming:instace_cpu_mapping", "create")
     @expose.expose(InstanceCPUMapping, body=types.jsontype,
@@ -162,7 +169,7 @@ class InstanceCPUMappingsController(rest.RestController):
 
         new_mapping.create()
         pecan.response.location = link.build_url('instance_cpu_mappings',
-                                                 new_mapping.uuid)
+                                                 new_mapping.instance_uuid)
         return InstanceCPUMapping.convert_with_links(new_mapping)
 
     @policy.authorize_wsgi("kongming:instace_cpu_mapping", "delete")
