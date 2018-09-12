@@ -48,7 +48,7 @@ class Connection(object):
         """Return a list of Mapping objects."""
 
     @abc.abstractmethod
-    def instance_cpu_mapping_get(cls, context, mapping_uuid):
+    def instance_cpu_mapping_get(cls, context, instance_uuid):
         """Find a Mapping and return a Mapping object."""
         return mapping
 
@@ -61,5 +61,5 @@ class Connection(object):
         """Delete the Mapping from the DB."""
 
     @abc.abstractmethod
-    def instance_cpu_mapping_update(self, context, uuid, values):
+    def instance_cpu_mapping_update(self, context, instance_uuid, values):
         """Update a Mapping"""

@@ -130,13 +130,13 @@ class InstanceCPUMappingsController(InstanceCPUMappingBase):
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get_one")
     @expose.expose(InstanceCPUMapping, types.uuid)
-    def get_one(self, mapping_uuid):
+    def get_one(self, instance_uuid):
         """Retrieve information about the given mapping.
 
-        :param mapping_uuid: UUID of a mapping.
+        :param mapping_uuid: UUID of a instance.
         """
         db_mapping = objects.InstanceCPUMapping.get(
-            pecan.request.context, mapping_uuid)
+            pecan.request.context, instance_uuid)
         return InstanceCPUMapping.convert_with_links(db_mapping)
 
     @policy.authorize_wsgi("kongming:instace_cpu_mapping", "create")

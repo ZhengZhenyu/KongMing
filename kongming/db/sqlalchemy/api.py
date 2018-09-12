@@ -131,17 +131,17 @@ class Connection(api.Connection):
                 session.flush()
             except db_exc.DBDuplicateEntry:
                 raise exception.InstanceCPUMappingAlreadyExists(
-                    uuid=values['uuid'])
+                    uuid=values['instance_uuid'])
             return mapping
 
-    def instance_cpu_mapping_get(self, context, mapping_uuid):
+    def instance_cpu_mapping_get(self, context, instance_uuid):
         query = model_query(
             context,
-            models.InstanceCPUMapping).filter_by(uuid=mapping_uuid)
+            models.InstanceCPUMapping).filter_by(uuid=instance_uuid)
         try:
             return query.one()
         except NoResultFound:
-            raise exception.InstanceCPUMappingNotFound(uuid=mapping_uuid)
+            raise exception.InstanceCPUMappingNotFound(uuid=instance_uuid)
 
     def instance_cpu_mapping_list(
             self, context, limit, marker, sort_key, sort_dir, project_only):
@@ -150,7 +150,7 @@ class Connection(api.Connection):
         return _paginate_query(context, models.InstanceCPUMapping, limit,
                                marker, sort_key, sort_dir, query)
 
-    def instance_cpu_mapping_update(self, context, uuid, values):
+    def instance_cpu_mapping_update(self, context, instance_uuid, values):
         if 'instance_uuid' in values:
             msg = _("Cannot overwrite instance_uuid for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
@@ -158,13 +158,14 @@ class Connection(api.Connection):
             msg = _("Cannot overwrite id for an existing Mapping.")
             raise exception.InvalidParameterValue(err=msg)
 
-        return self._do_update_instance_cpu_mapping(context, uuid, values)
+        return self._do_update_instance_cpu_mapping(
+            context, instance_uuid, values)
 
     @oslo_db_api.retry_on_deadlock
-    def _do_update_instance_cpu_mapping(self, context, uuid, values):
+    def _do_update_instance_cpu_mapping(self, context, instance_uuid, values):
         with _session_for_write():
             query = model_query(context, models.InstanceCPUMapping)
-            query = add_identity_filter(query, uuid)
+            query = add_identity_filter(query, instance_uuid)
             try:
                 ref = query.with_lockmode('update').one()
             except NoResultFound:
@@ -174,10 +175,10 @@ class Connection(api.Connection):
         return ref
 
     @oslo_db_api.retry_on_deadlock
-    def instance_cpu_mapping_destroy(self, context, mapping_uuid):
+    def instance_cpu_mapping_destroy(self, context, instance_uuid):
         with _session_for_write():
             query = model_query(context, models.InstanceCPUMapping)
-            query = add_identity_filter(query, mapping_uuid)
+            query = add_identity_filter(query, instance_uuid)
             count = query.delete()
             if count != 1:
-                raise exception.InstanceCPUMappingNotFound(uuid=mapping_uuid)
+                raise exception.InstanceCPUMappingNotFound(uuid=instance_uuid)
