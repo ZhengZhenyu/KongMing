@@ -94,7 +94,7 @@ def add_identity_filter(query, value):
 
 
 def _paginate_query(context, model, limit=None, marker=None, sort_key=None,
-                    sort_dir=None, query=None, project_only=True):
+                    sort_dir=None, query=None):
     if not query:
         query = model_query(context, model)
     sort_keys = ['id']
