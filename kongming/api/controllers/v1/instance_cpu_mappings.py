@@ -115,7 +115,7 @@ class InstanceCPUMappingCollection(base.APIBase):
         return collection
 
 
-class InstanceCPUMapping(rest.RestController):
+class InstanceCPUMappingBase(rest.RestController):
 
     _resource = None
 
@@ -125,7 +125,7 @@ class InstanceCPUMapping(rest.RestController):
         return self._resource
 
 
-class InstanceCPUMappingsController(rest.RestController):
+class InstanceCPUMappingsController(InstanceCPUMappingBase):
     """REST controller for InstanceCPUMapping."""
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "get_one")
