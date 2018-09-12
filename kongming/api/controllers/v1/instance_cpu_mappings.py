@@ -29,6 +29,7 @@ from kongming.api import expose
 from kongming.common import exception
 from kongming.common import policy
 from kongming.common import clients
+from kongming.common import states
 from kongming import objects
 
 
@@ -136,8 +137,49 @@ class InstanceCPUMappingsController(MappingControllerBase):
         """
         db_mapping = objects.InstanceCPUMapping.get(
             pecan.request.context, mapping_uuid)
-        if not pecan.request.context.is_admin:
-            return InstanceCPUMapping.convert_with_links(
-                db_mapping, fields=_DEFAULT_FLAVOR_RETURN_FIELDS)
-        else:
-            return InstanceCPUMapping.convert_with_links(db_mapping)
+        return InstanceCPUMapping.convert_with_links(db_mapping)
+
+    @policy.authorize_wsgi("kongming:instace_cpu_mapping", "create")
+    @expose.expose(InstanceCPUMapping, body=types.jsontype,
+                   status_code=http_client.CREATED)
+    def post(self, mapping):
+        """Create a new cpu mapping for the given instance.
+
+        :param mapping: a mapping within the request body.
+        :return:
+        """
+        mapping_dict = {
+            'instance_uuid': mapping['instance_uuid'],
+            'cpu_mappings': mapping['cpu_mappings'],
+            'wait_until_active': False
+        }
+
+        wait_until_active = mapping.get('wait_until_active')
+        if wait_until_active:
+            mapping_dict['wait_until_active'] = wait_until_active
+
+        new_mapping = objects.InstanceCPUMapping(pecan.request.context,
+                                                 **mapping_dict)
+        new_mapping.status = states.PENDING
+        # Set the HTTP Location Header
+
+        if not wait_until_active:
+            pass
+            # 1. get instance host from nova api
+            # 2. call the agent on the instance.host to do the job
+
+        new_mapping.create()
+        pecan.response.location = link.build_url('instance_cpu_mappings',
+                                                 new_mapping.uuid)
+        return InstanceCPUMapping.convert_with_links(new_mapping)
+
+    @policy.authorize_wsgi("kongming:instace_cpu_mapping", "delete")
+    @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
+    def delete(self, mapping_uuid):
+        """Delete a cpu mapping.
+
+        :param mapping_uuid: UUID of a mapping.
+        """
+        db_mapping = objects.InstanceCPUMapping.get(
+            pecan.request.context, mapping_uuid)
+        db_mapping.destroy()
