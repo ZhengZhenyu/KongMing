@@ -134,7 +134,7 @@ class InstanceCPUMappingsController(rest.RestController):
     def get_all(self):
         """Retrieve a list of instance_cpu_mappings."""
         mappings = objects.InstanceCPUMapping.list(pecan.request.context)
-        return FlavorCollection.convert_with_links(mappings)
+        return InstanceCPUMappingCollection.convert_with_links(mappings)
 
     @policy.authorize_wsgi("kongming:instace_cpu_mapping", "create")
     @expose.expose(InstanceCPUMapping, body=types.jsontype,
