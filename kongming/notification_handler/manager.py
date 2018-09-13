@@ -18,7 +18,7 @@ import oslo_messaging
 from oslo_service import service as os_service
 
 from kongming.conf import CONF
-from kongming.executor import manager as exe_manager
+from kongming.agent import manager as agent_manager
 
 LOG = logging.getLogger(__name__)
 
@@ -28,16 +28,16 @@ SUPPORTED_ENVENTS = [
 
 class NotificationEndpoint(object):
     def __init__(self):
-        self.executor = exe_manager.ExecutorManager()
+        self.agent = agent_manager.AgentManager()
 
     def _process_event(self, ctxt, publisher_id, event_type, payload,
                        metadata, priority):
-        self.executor.execute(payload)
+        self.agent.execute(payload)
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()
         if event_type_l in SUPPORTED_ENVENTS and \
-                payload['nova_object.data']['host'] == self.executor.hostname:
+                payload['nova_object.data']['host'] == self.agent.hostname:
             self._process_event(ctxt, publisher_id, event_type,
                                 payload, metadata, 'INFO')
 

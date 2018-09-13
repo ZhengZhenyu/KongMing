@@ -12,4 +12,4 @@
 
 
 CONDUCTOR_TOPIC = 'kongming-conductor'
-AGENT_TOPIC = 'kongming-executor'
+AGENT_TOPIC = 'kongming-agent'

@@ -36,8 +36,8 @@ from kongming.conf import CONF
 LOG = logging.getLogger(__name__)
 
 
-class ExecutorManager(object):
-    """Kongming Executor manager main class."""
+class AgentManager(object):
+    """Kongming Agent manager main class."""
 
     RPC_API_VERSION = '1.0'
     target = messaging.Target(version=RPC_API_VERSION)
@@ -52,9 +52,9 @@ class ExecutorManager(object):
     def execute(self, payload):
         instance_uuid = payload['nova_object.data']['uuid']
         instance_metadata = payload['nova_object.data']['metadata']
-        if CONF.executor.executor_trigger_metadata_key in instance_metadata:
+        if CONF.agent.agent_trigger_metadata_key in instance_metadata:
             cpu_set_list = instance_metadata[
-                CONF.executor.executor_trigger_metadata_key]
+                CONF.agent.agent_trigger_metadata_key]
             LOG.info('Trying to Pin VCPU for instance %s', instance_uuid)
             pinng_map = utils.calculate_cpumap(cpu_set_list, self.maxcpu)
             LOG.info('The calculated CPU map is ' + str(pinng_map))

@@ -1,6 +1,3 @@
-# Copyright 2018 Zhenyu Zheng <zheng.zhenyu@outlook.com>
-# All Rights Reserved.
-#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -13,17 +10,27 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+"""The KongMing agent Service."""
+
+import sys
+
 from oslo_config import cfg
+from oslo_service import service
+
+from kongming.common import constants
+from kongming.common import service as kongming_service
 
 
-executor_opts = [
-    cfg.StrOpt('executor_trigger_metadata_key',
-               default='kongming-vcpu-pinning',
-               help='The key to be used to informing kongming for '
-                    'vcpu pinning')
-]
+CONF = cfg.CONF
 
 
-def register_opts(conf):
-    conf.register_opts(
-        executor_opts, group="executor")
+def main():
+    # Parse config file and command line options, then start logging
+    kongming_service.prepare_service(sys.argv)
+
+    mgr = kongming_service.RPCService('kongming.agent.manager',
+                                      'AgentManager',
+                                      constants.AGENT_TOPIC)
+
+    launcher = service.launch(CONF, mgr)
+    launcher.wait()

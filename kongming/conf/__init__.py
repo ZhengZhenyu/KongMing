@@ -15,12 +15,12 @@ from oslo_config import cfg
 from kongming.conf import api
 from kongming.conf import database
 from kongming.conf import default
-from kongming.conf import executor
+from kongming.conf import agent
 from kongming.conf import notification_handler
 
 CONF = cfg.CONF
 api.register_opts(CONF)
 database.register_opts(CONF)
 default.register_opts(CONF)
-executor.register_opts(CONF)
+agent.register_opts(CONF)
 notification_handler.register_opts(CONF)
