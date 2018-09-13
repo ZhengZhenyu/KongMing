@@ -24,7 +24,7 @@ class API(object):
     modules in kongming to retrieve information about instances.
     """
 
-    def get(self, context, instance_uuid):
+    def get_instance(self, context, instance_uuid):
         """Retrieves the information record for a single instance.
 
         :param context: The context object for the request

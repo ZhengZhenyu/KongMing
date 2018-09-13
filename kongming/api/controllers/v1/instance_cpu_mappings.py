@@ -158,20 +158,12 @@ class InstanceCPUMappingsController(rest.RestController):
         if wait_until_active:
             mapping_dict['wait_until_active'] = wait_until_active
 
-        new_mapping = objects.InstanceCPUMapping(pecan.request.context,
-                                                 **mapping_dict)
-        new_mapping.status = states.PENDING
-        # Set the HTTP Location Header
+        mapping = pecan.request.agent_api.create_instance_cpu_mapping(
+            pecan.request.context, mapping_dict)
 
-        if not wait_until_active:
-            pass
-            # 1. get instance host from nova api
-            # 2. call the agent on the instance.host to do the job
-
-        new_mapping.create()
         pecan.response.location = link.build_url('instance_cpu_mappings',
-                                                 new_mapping.instance_uuid)
-        return InstanceCPUMapping.convert_with_links(new_mapping)
+                                                 mapping.instance_uuid)
+        return InstanceCPUMapping.convert_with_links(mapping)
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "delete")
     @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)

@@ -32,6 +32,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
     pecan.configuration.set_config(dict(pecan_config), overwrite=True)
 
     app_hooks = [hooks.ConfigHook(),
+                 hooks.AgentAPIHook(),
                  hooks.ContextHook(pecan_config.app.acl_public_routes),
                  hooks.PublicUrlHook()]
     if extra_hooks:

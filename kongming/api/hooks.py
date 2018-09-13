@@ -17,6 +17,7 @@ from oslo_config import cfg
 from oslo_context import context
 from pecan import hooks
 
+from kongming.agent import api as agent_api
 from kongming.common import policy
 
 
@@ -37,6 +38,16 @@ class PublicUrlHook(hooks.PecanHook):
     def before(self, state):
         state.request.public_url = (
             cfg.CONF.api.public_endpoint or state.request.host_url)
+
+
+class AgentAPIHook(hooks.PecanHook):
+    """Attach the agent_api object to the request."""
+
+    def __init__(self):
+        self.agent_api = agent_api.API()
+
+    def before(self, state):
+        state.request.agent_api = self.agent_api
 
 
 class ContextHook(hooks.PecanHook):
