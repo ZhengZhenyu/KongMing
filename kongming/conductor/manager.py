@@ -1,3 +1,5 @@
+# All Rights Reserved.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -10,6 +12,22 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import oslo_messaging as messaging
 
-CONDUCTOR_TOPIC = 'kongming-conductor'
-AGENT_TOPIC = 'kongming-executor'
+from kongming.conf import CONF
+from kongming import objects
+
+
+class ConductorManager(object):
+    """Kongming Conductor manager main class."""
+
+    RPC_API_VERSION = '1.0'
+    target = messaging.Target(version=RPC_API_VERSION)
+
+    def __init__(self, topic, host=None):
+        super(ConductorManager, self).__init__()
+        self.topic = topic
+        self.host = host or CONF.host
+
+    def periodic_tasks(self, context, raise_on_error=False):
+        pass
