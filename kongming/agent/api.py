@@ -61,7 +61,8 @@ class API(object):
         if not wait_until_active:
             # 1. get instance host from nova api
             try:
-                self._get_instance(context, mapping_dict['instance_uuid'])
+                inst_dict = self._get_instance(
+                    context, mapping_dict['instance_uuid'])
             except Exception:
                 pass
             # 2. call the agent on the instance.host to do the job
