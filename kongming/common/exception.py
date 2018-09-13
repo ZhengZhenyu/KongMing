@@ -187,7 +187,7 @@ class InvalidInstanceStatus(KongMingException):
 
 
 class NovaConnectionFailed(Invalid):
-    _msg_fmt =  _('Connection to nova service %(server)s failed: '
+    _msg_fmt = _('Connection to nova service %(server)s failed: '
                   '%(reason)s.')
 
 

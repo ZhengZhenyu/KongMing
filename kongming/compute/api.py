@@ -30,5 +30,4 @@ class API(object):
         :param context: The context object for the request
         :param image_uuid: A UUID identifier to look up image information for.
         """
-        client = nova.get_novaclient()
-        return client.servers.get(instance_uuid).to_dict()
+        return nova.API.get_instance(context, instance_uuid)

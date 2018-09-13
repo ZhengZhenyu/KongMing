@@ -6,6 +6,7 @@ from keystoneclient import exceptions as keystone_exceptions
 
 import keystoneclient.v3.client as ks_client
 from novaclient import client as nova_client
+from novaclient import exceptions as nova_exceptions
 
 from kongming.common import exception
 
@@ -66,3 +67,34 @@ def get_novaclient():
             max_version=max_version)
 
     return do_get_client(version)
+
+
+def translate_nova_exception(method):
+    """Transforms a cinder exception but keeps its traceback intact."""
+    @functools.wraps(method)
+    def wrapper(self, ctx, *args, **kwargs):
+        try:
+            res = method(self, ctx, *args, **kwargs)
+        except (nova_exceptions.ConnectionError,
+                keystone_exception.ConnectionError) as exc:
+            err_msg = encodeutils.exception_to_unicode(exc)
+            _reraise(exception.NovaConnectionFailed(reason=err_msg))
+        except (keystone_exception.BadRequest,
+                nova_exceptions.BadRequest) as exc:
+            err_msg = encodeutils.exception_to_unicode(exc)
+            _reraise(exception.InstanceBadRequest(reason=err_msg))
+        except (keystone_exception.Forbidden,
+                nova_exceptions.Forbidden) as exc:
+            err_msg = encodeutils.exception_to_unicode(exc)
+            _reraise(exception.InstanceNotAuthorized(err_msg))
+        except (keystone_exception.NotFound, nova_exception.NotFound):
+            _reraise(exception.InstanceNotFound(instnace_uuid=instnace_uuid))
+        return res
+    return wrapper
+
+
+class API(object):
+
+    def get_instance(self, context, instance_uuid):
+        client = get_novaclient()
+        client.servers.get(instance_uuid).to_dict()
