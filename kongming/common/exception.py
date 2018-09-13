@@ -184,3 +184,21 @@ class ObjectActionError(KongMingException):
 class InvalidInstanceStatus(KongMingException):
     _msg_fmt = _('Mapping creation failed for instance: %(instance)s, '
                  'the instance should be in ACTIVE status.')
+
+
+class NovaConnectionFailed(Invalid):
+    _msg_fmt =  _('Connection to nova service %(server)s failed: '
+                  '%(reason)s.')
+
+
+class InstanceNotAuthorized(NotAuthorized):
+    _msg_fmt = _("Not authorized for instance %(instance_uuid)s.")
+
+
+class InstanceBadRequest(Invalid):
+    _msg_fmt = _("Request of instance %(instance_uuid)s got BadRequest "
+                 "response: %(response)s")
+
+
+class InstanceNotFound(NotFound):
+    _msg_fmt = _("Instance %(instance_uuid)s could not be found.")

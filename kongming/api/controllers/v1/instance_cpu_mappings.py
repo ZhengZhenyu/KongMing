@@ -30,6 +30,7 @@ from kongming.common import exception
 from kongming.common import policy
 from kongming.common import clients
 from kongming.common import states
+from kongming import compute
 from kongming import objects
 
 
