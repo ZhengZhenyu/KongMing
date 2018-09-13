@@ -31,4 +31,4 @@ class API(object):
         :param image_uuid: A UUID identifier to look up image information for.
         """
         client = nova.get_novaclient()
-        return client.servers.get(instance_uuid)
+        return client.servers.get(instance_uuid).to_dict()

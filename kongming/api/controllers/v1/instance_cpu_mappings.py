@@ -155,11 +155,9 @@ class InstanceCPUMappingsController(rest.RestController):
         }
 
         wait_until_active = mapping.get('wait_until_active')
-        if wait_until_active:
-            mapping_dict['wait_until_active'] = wait_until_active
 
         mapping = pecan.request.agent_api.create_instance_cpu_mapping(
-            pecan.request.context, mapping_dict)
+            pecan.request.context, mapping_dict, wait_until_active)
 
         pecan.response.location = link.build_url('instance_cpu_mappings',
                                                  mapping.instance_uuid)

@@ -14,7 +14,7 @@
 
 from oslo_config import cfg
 
-from mogan.common.i18n import _
+from kongming.common.i18n import _
 
 opts = [
     cfg.StrOpt(

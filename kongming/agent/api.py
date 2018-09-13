@@ -49,17 +49,21 @@ class API(object):
     def _get_instance(self, context, instance_uuid):
         return self.compute_api.get_instance(context, instance_uuid)
 
-    def create_instance_cpu_mapping(self, context, mapping_dict):
+    def create_instance_cpu_mapping(self, context, mapping_dict,
+                                    wait_until_active):
+        if wait_until_active:
+            mapping_dict['wait_until_active'] = wait_until_active
         new_mapping = objects.InstanceCPUMapping(context,
-                                                 mapping_dict)
+                                                 **mapping_dict)
         new_mapping.status = states.PENDING
         # Set the HTTP Location Header
 
-        self._get_instance(context, mapping_dict['instance_uuid'])
-
         if not wait_until_active:
-            pass
             # 1. get instance host from nova api
+            try:
+                self._get_instance(context, mapping_dict['instance_uuid'])
+            except Exception:
+                pass
             # 2. call the agent on the instance.host to do the job
 
         new_mapping.create()
