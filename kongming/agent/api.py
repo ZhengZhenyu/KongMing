@@ -43,7 +43,7 @@ class API(object):
 
     def __init__(self, compute_api=None, **kwargs):
         super(API, self).__init__(**kwargs)
-        self.compute_api = compute_api or compute.API()
+        self.compute_api = compute_api or compute.nova.API()
         #self.agent_rpcapi = rpcapi.AgentAPI()
 
     def _get_instance(self, context, instance_uuid):

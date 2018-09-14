@@ -103,6 +103,7 @@ def translate_nova_exception(method):
 
 class API(object):
 
+    @translate_nova_exception
     def get_instance(self, context, instance_uuid):
         client = get_novaclient()
         client.servers.get(instance_uuid).to_dict()
