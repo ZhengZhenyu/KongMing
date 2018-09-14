@@ -43,7 +43,7 @@ class API(object):
 
     def __init__(self, compute_api=None, **kwargs):
         super(API, self).__init__(**kwargs)
-        self.compute_api = compute_api or compute.nova.API()
+        self.compute_api = compute_api or compute.API()
         #self.agent_rpcapi = rpcapi.AgentAPI()
 
     def _get_instance(self, context, instance_uuid):
@@ -62,6 +62,12 @@ class API(object):
             # 1. get instance host from nova api
             inst_dict = self._get_instance(
                 context, mapping_dict['instance_uuid'])
+            if inst_dict['OS-EXT-STS:vm_state'] != 'active':
+                raise exception.BadRequest(
+                    reason='Instance should with active vm_state if '
+                           'creating cpu mapping without '
+                           '"wait_until_active=True".')
+            new_mapping.host = inst_dict['OS-EXT-SRV-ATTR:host']
 
             # 2. call the agent on the instance.host to do the job
 

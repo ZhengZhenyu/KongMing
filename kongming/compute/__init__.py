@@ -13,5 +13,5 @@
 
 def API():
     # Needed to prevent circular import...
-    import kongming.compute.api
-    return kongming.compute.api.API()
+    import kongming.compute.nova
+    return kongming.compute.nova.API()
