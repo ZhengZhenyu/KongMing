@@ -51,6 +51,9 @@ class AgentManager(object):
         LOG.info('The maximum cpu of host %s is %s',
                   self.hostname, self.maxcpu)
 
+    def periodic_tasks(self, context, raise_on_error=False):
+        pass
+
     def execute(self, payload):
         instance_uuid = payload['nova_object.data']['uuid']
         instance_metadata = payload['nova_object.data']['metadata']
