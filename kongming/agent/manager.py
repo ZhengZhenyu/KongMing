@@ -42,7 +42,9 @@ class AgentManager(object):
     RPC_API_VERSION = '1.0'
     target = messaging.Target(version=RPC_API_VERSION)
 
-    def __init__(self):
+    def __init__(self, topic, host=None):
+        self.topic = topic
+        self.host = host or CONF.host
         self.conn = libvirt.open('qemu:///system')
         self.hostname = self.conn.getHostname()
         self.maxcpu = self.conn.getInfo()[2]
@@ -73,3 +75,26 @@ class AgentManager(object):
                     LOG.info('...Failed')
 
             LOG.info('VCPU ping for instance %s finished', instance_uuid)
+
+    def adjust_instance_cpu_mapping(self, context, mapping):
+        instance_uuid = mapping['instance_uuid']
+        cpu_mapping = mapping['cpu_mappings']
+        pinng_map = utils.calculate_cpumap(cpu_mapping, self.maxcpu)
+        LOG.info('The calculated CPU map is ' + str(pinng_map))
+        dom = self.conn.lookupByUUIDString(instance_uuid)
+        instance_cpu_num = dom.info()[3]
+        LOG.info('Pin domain vcpus to host cpu %s.', pinng_map)
+        for i in xrange(0, instance_cpu_num):
+            LOG.info('Pin domain vcpu %s to host cpu %s with'
+                     'flag: %s...' % (i, pinng_map,
+                                      libvirt.VIR_DOMAIN_AFFECT_LIVE))
+            ret = dom.pinVcpuFlags(i, pinng_map,
+                                   libvirt.VIR_DOMAIN_AFFECT_LIVE)
+            if ret == 0:
+                LOG.info('...Success')
+            else:
+                LOG.info('...Failed')
+
+        LOG.info('VCPU ping for instance %s finished', instance_uuid)
+
+        return True

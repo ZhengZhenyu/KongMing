@@ -1,3 +1,4 @@
+# Copyright 2016 Huawei Technologies Co.,LTD.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -11,9 +12,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-"""Client side of the conductor RPC API."""
-
+"""
+Client side of the agent RPC API.
+"""
 from oslo_config import cfg
 import oslo_messaging as messaging
 
@@ -21,12 +22,11 @@ from kongming.common import constants
 from kongming.common import rpc
 from kongming.objects import base as objects_base
 
-
 CONF = cfg.CONF
 
 
-class ConductorAPI(object):
-    """Client side of the conductor RPC API.
+class EngineAPI(object):
+    """Client side of the engine RPC API.
 
     API version history:
 
@@ -37,8 +37,11 @@ class ConductorAPI(object):
     RPC_API_VERSION = '1.0'
 
     def __init__(self, topic=None):
-        super(ConductorAPI, self).__init__()
-        self.topic = topic or constants.CONDUCTOR_TOPIC
+        super(EngineAPI, self).__init__()
+        self.topic = topic
+        if self.topic is None:
+            self.topic = constants.AGENT_TOPIC
+
         target = messaging.Target(topic=self.topic,
                                   version='1.0')
         serializer = objects_base.KongmingObjectSerializer()
@@ -46,7 +49,7 @@ class ConductorAPI(object):
                                      version_cap=self.RPC_API_VERSION,
                                      serializer=serializer)
 
-    def create_instance_cpu_mapping(self, context, mapping_obj):
-        cctxt = self.client.prepare(topic=self.topic)
-        return cctxt.cast(context, 'create_instance_cpu_mapping',
-                          mapping_obj=mapping_obj)
+    def create_instance_cpu_mapping(self, context, mapping):
+        cctxt = self.client.prepare(topic=self.topic, server=mapping.host)
+        return cctxt.call(context, 'adjust_instance_cpu_mapping',
+                          mapping=mapping)

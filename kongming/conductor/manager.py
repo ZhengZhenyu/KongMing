@@ -14,8 +14,9 @@
 
 import oslo_messaging as messaging
 
+from kongming.agent import rpcapi as agent_rpcapi
+from kongming.common import states
 from kongming.conf import CONF
-from kongming import objects
 
 
 class ConductorManager(object):
@@ -28,9 +29,14 @@ class ConductorManager(object):
         super(ConductorManager, self).__init__()
         self.topic = topic
         self.host = host or CONF.host
+        self.agent_api = agent_rpcapi.EngineAPI()
 
     def periodic_tasks(self, context, raise_on_error=False):
         pass
 
-    def create_instance_cpu_mapping(self):
-        pass
+    def create_instance_cpu_mapping(self, context, mapping_obj):
+        result = self.agent_api.create_instance_cpu_mapping(
+            context, mapping_obj)
+        if result:
+            mapping_obj.status = states.SUCCEED
+            mapping_obj.save()
