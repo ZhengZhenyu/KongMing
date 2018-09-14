@@ -98,4 +98,4 @@ class InstanceCPUMapping(base.KongmingObject,
 
         if updates:
             self.dbapi.instance_cpu_mapping_update(
-                context, self.uuid, updates)
+                context, self.instance_uuid, updates)

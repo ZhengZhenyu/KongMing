@@ -12,11 +12,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_log import log as logging
 import oslo_messaging as messaging
 
 from kongming.agent import rpcapi as agent_rpcapi
 from kongming.common import states
 from kongming.conf import CONF
+
+
+LOG = logging.getLogger(__name__)
 
 
 class ConductorManager(object):
@@ -40,3 +44,9 @@ class ConductorManager(object):
         if result:
             mapping_obj.status = states.SUCCEED
             mapping_obj.save()
+            LOG.debug('Instance CPU mapping for instance: %s updated '
+                      'successfully, set status to %s.',
+                      (mapping_obj.instance_uuid, mapping_obj.status))
+        else:
+            LOG.debug('Instance CPU mapping for instance: %s update '
+                      'failed, set status to %s.', mapping_obj.instance_uuid)
