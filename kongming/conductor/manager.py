@@ -45,8 +45,8 @@ class ConductorManager(object):
             mapping_obj.status = states.SUCCEED
             mapping_obj.save()
             LOG.debug('Instance CPU mapping for instance: %s updated '
-                      'successfully, set status to %s.',
-                      (mapping_obj.instance_uuid, mapping_obj.status))
+                      'successfully, set status to "succeed".',
+                      mapping_obj.instance_uuid)
         else:
             LOG.debug('Instance CPU mapping for instance: %s update '
                       'failed.', mapping_obj.instance_uuid)
