@@ -49,4 +49,4 @@ class ConductorManager(object):
                       (mapping_obj.instance_uuid, mapping_obj.status))
         else:
             LOG.debug('Instance CPU mapping for instance: %s update '
-                      'failed, set status to %s.', mapping_obj.instance_uuid)
+                      'failed.', mapping_obj.instance_uuid)

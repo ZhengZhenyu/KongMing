@@ -73,7 +73,7 @@ class AgentManager(object):
                 ret = dom.pinVcpuFlags(i, pinng_map,
                                        libvirt.VIR_DOMAIN_AFFECT_LIVE)
                 if ret == 0:
-                    LOG.info('...Success')
+                    LOG.debug('...Success')
                 else:
                     LOG.info('...Failed')
 
