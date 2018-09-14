@@ -19,6 +19,8 @@ import string
 import base64
 import binascii
 
+import pecan
+
 from oslo_log import log
 from oslo_serialization import base64 as base64utils
 from oslo_utils import excutils
@@ -72,4 +74,7 @@ class API(object):
             # 2. call the agent on the instance.host to do the job
 
         new_mapping.create()
+
+        pecan.request.conductor_api.create_instance_cpu_mapping()
+
         return new_mapping

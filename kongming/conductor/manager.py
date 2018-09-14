@@ -31,3 +31,6 @@ class ConductorManager(object):
 
     def periodic_tasks(self, context, raise_on_error=False):
         pass
+
+    def create_instance_cpu_mapping(self):
+        pass

@@ -45,3 +45,8 @@ class ConductorAPI(object):
         self.client = rpc.get_client(target,
                                      version_cap=self.RPC_API_VERSION,
                                      serializer=serializer)
+
+    def create_instance_cpu_mapping(self, context, mapping_obj):
+        cctxt = self.client.prepare(topic=self.topic)
+        return cctxt.cast(context, 'create_instance_cpu_mapping',
+                          mapping_obj=mapping_obj)

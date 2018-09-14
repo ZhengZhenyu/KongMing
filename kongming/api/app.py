@@ -33,6 +33,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
 
     app_hooks = [hooks.ConfigHook(),
                  hooks.AgentAPIHook(),
+                 hooks.ConductorAPIHook(),
                  hooks.ContextHook(pecan_config.app.acl_public_routes),
                  hooks.PublicUrlHook()]
     if extra_hooks:

@@ -19,25 +19,7 @@ from pecan import hooks
 
 from kongming.agent import api as agent_api
 from kongming.common import policy
-
-
-class ConfigHook(hooks.PecanHook):
-    """Attach the config object to the request so controllers can get to it."""
-
-    def before(self, state):
-        state.request.cfg = cfg.CONF
-
-
-class PublicUrlHook(hooks.PecanHook):
-    """Attach the right public_url to the request.
-
-    Attach the right public_url to the request so resources can create
-    links even when the API service is behind a proxy or SSL terminator.
-    """
-
-    def before(self, state):
-        state.request.public_url = (
-            cfg.CONF.api.public_endpoint or state.request.host_url)
+from kongming.conductor import rpcapi as conductor_rpcapi
 
 
 class AgentAPIHook(hooks.PecanHook):
@@ -48,6 +30,23 @@ class AgentAPIHook(hooks.PecanHook):
 
     def before(self, state):
         state.request.agent_api = self.agent_api
+
+
+class ConductorAPIHook(hooks.PecanHook):
+    """Attach the conductor_api object to the request."""
+
+    def __init__(self):
+        self.conductor_api = conductor_rpcapi.ConductorAPI()
+
+    def before(self, state):
+        state.request.conductor_api = self.conductor_api
+
+
+class ConfigHook(hooks.PecanHook):
+    """Attach the config object to the request so controllers can get to it."""
+
+    def before(self, state):
+        state.request.cfg = cfg.CONF
 
 
 class ContextHook(hooks.PecanHook):
@@ -101,3 +100,15 @@ class ContextHook(hooks.PecanHook):
         # passing outside, so it always contain a request_id.
         request_id = state.request.context.request_id
         state.response.headers['Openstack-Request-Id'] = request_id
+
+
+class PublicUrlHook(hooks.PecanHook):
+    """Attach the right public_url to the request.
+
+    Attach the right public_url to the request so resources can create
+    links even when the API service is behind a proxy or SSL terminator.
+    """
+
+    def before(self, state):
+        state.request.public_url = (
+            cfg.CONF.api.public_endpoint or state.request.host_url)
