@@ -1,16 +1,19 @@
 from distutils.version import LooseVersion
+import functools
 import os
+import six
+import sys
+
+from oslo_config import cfg
+from oslo_utils import encodeutils
 
 from keystoneauth1 import loading as ka_loading
 from keystoneclient import exceptions as keystone_exceptions
 
-import keystoneclient.v3.client as ks_client
 from novaclient import client as nova_client
 from novaclient import exceptions as nova_exceptions
 
 from kongming.common import exception
-
-from oslo_config import cfg
 
 
 client_opts = [
@@ -69,6 +72,10 @@ def get_novaclient():
     return do_get_client(version)
 
 
+def _reraise(desired_exc):
+    six.reraise(type(desired_exc), desired_exc, sys.exc_info()[2])
+
+
 def translate_nova_exception(method):
     """Transforms a cinder exception but keeps its traceback intact."""
     @functools.wraps(method)
@@ -76,19 +83,20 @@ def translate_nova_exception(method):
         try:
             res = method(self, ctx, *args, **kwargs)
         except (nova_exceptions.ConnectionError,
-                keystone_exception.ConnectionError) as exc:
+                keystone_exceptions.ConnectionError) as exc:
             err_msg = encodeutils.exception_to_unicode(exc)
             _reraise(exception.NovaConnectionFailed(reason=err_msg))
-        except (keystone_exception.BadRequest,
-                nova_exceptions.BadRequest) as exc:
+        except (keystone_exceptions.BadRequest,
+                nova_exceptions.BadRequest)as exc:
             err_msg = encodeutils.exception_to_unicode(exc)
-            _reraise(exception.InstanceBadRequest(reason=err_msg))
-        except (keystone_exception.Forbidden,
-                nova_exceptions.Forbidden) as exc:
+            _reraise(exception.BadRequest(reason=err_msg))
+        except (keystone_exceptions.Forbidden,
+                nova_exceptions.Forbidden):
+            _reraise(exception.NotAuthorized())
+        except (keystone_exceptions.NotFound,
+                nova_exceptions.NotFound) as exc:
             err_msg = encodeutils.exception_to_unicode(exc)
-            _reraise(exception.InstanceNotAuthorized(err_msg))
-        except (keystone_exception.NotFound, nova_exception.NotFound):
-            _reraise(exception.InstanceNotFound(instnace_uuid=instnace_uuid))
+            _reraise(exception.InstanceNotFound(reason=err_msg))
         return res
     return wrapper
 

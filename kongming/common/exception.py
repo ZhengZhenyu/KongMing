@@ -188,17 +188,17 @@ class InvalidInstanceStatus(KongMingException):
 
 class NovaConnectionFailed(Invalid):
     _msg_fmt = _('Connection to nova service %(server)s failed: '
-                  '%(reason)s.')
+                 '%(reason)s.')
 
 
-class InstanceNotAuthorized(NotAuthorized):
-    _msg_fmt = _("Not authorized for instance %(instance_uuid)s.")
+class NotAuthorized(NotAuthorized):
+    msg_fmt = _("Forbidden.")
+    code = 403
 
 
-class InstanceBadRequest(Invalid):
-    _msg_fmt = _("Request of instance %(instance_uuid)s got BadRequest "
-                 "response: %(response)s")
+class BadRequest(Invalid):
+    _msg_fmt = _("Invalid input received: %(reason)s.")
 
 
 class InstanceNotFound(NotFound):
-    _msg_fmt = _("Instance %(instance_uuid)s could not be found.")
+    _msg_fmt = _("Instance could not be found: %(reason)s.")
