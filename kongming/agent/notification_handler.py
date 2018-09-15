@@ -33,7 +33,8 @@ class NotificationEndpoint(object):
                        metadata, priority):
         instance_uuid = payload['nova_object.data']['uuid']
         instance_host = payload['nova_object.data']['host']
-        self.conductor_api(ctxt, instance_uuid, instance_host)
+        self.conductor_api.check_and_update_instance_cpu_mapping(
+            ctxt, instance_uuid, instance_host)
         LOG.debug('Instance.create.end notification captured for '
                   'instance: %s call conductor to do the rest '
                   'of the job.', instance_uuid)
