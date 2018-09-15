@@ -13,7 +13,7 @@ allocated to a server built with this flavor.
 List Flavors
 ============
 
-.. rest_method:: GET /flavors
+.. rest_method:: GET /servers
 
 Lists all flavors accessible to your project.
 
