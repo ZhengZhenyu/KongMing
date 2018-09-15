@@ -14,10 +14,7 @@
 #    under the License.
 
 from oslo_log import log as logging
-import oslo_messaging
-from oslo_service import service as os_service
 
-from kongming.conf import CONF
 from kongming.agent import manager as agent_manager
 
 LOG = logging.getLogger(__name__)
@@ -32,12 +29,12 @@ class NotificationEndpoint(object):
 
     def _process_event(self, ctxt, publisher_id, event_type, payload,
                        metadata, priority):
-        self.agent.execute(payload)
+        self.agent.execute_notifications(payload)
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()
         if event_type_l in SUPPORTED_ENVENTS and \
-                payload['nova_object.data']['host'] == self.agent.hostname:
+                payload['nova_object.data']['host'] == self.agent.host:
             self._process_event(ctxt, publisher_id, event_type,
                                 payload, metadata, 'INFO')
 
@@ -45,32 +42,3 @@ class NotificationEndpoint(object):
         self._process_event(ctxt, publisher_id, event_type, payload, metadata,
                             'ERROR')
 
-
-class ListenerService(os_service.Service):
-    def __init__(self, *args, **kwargs):
-        super(ListenerService, self).__init__(*args, **kwargs)
-        self.listener = None
-
-    def start(self):
-        super(ListenerService, self).start()
-        transport = oslo_messaging.get_notification_transport(CONF)
-        targets = [
-            oslo_messaging.Target(topic='versioned_notifications',
-                                  exchange='nova')
-        ]
-        endpoints = [
-            NotificationEndpoint()
-        ]
-        self.listener = oslo_messaging.get_notification_listener(
-            transport,
-            targets,
-            endpoints,
-            executor='threading',
-            pool=CONF.notification_handler.notifications_pool)
-
-        self.listener.start()
-
-    def stop(self):
-        self.listener.stop()
-        self.listener.wait()
-        super(ListenerService, self).stop()

@@ -30,7 +30,8 @@ def main():
 
     mgr = kongming_service.RPCService('kongming.agent.manager',
                                       'AgentManager',
-                                      constants.AGENT_TOPIC)
+                                      constants.AGENT_TOPIC,
+                                      init_notification_listener=True)
 
     launcher = service.launch(CONF, mgr)
     launcher.wait()

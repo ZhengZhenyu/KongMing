@@ -54,7 +54,7 @@ class AgentManager(object):
     def periodic_tasks(self, context, raise_on_error=False):
         pass
 
-    def execute(self, payload):
+    def execute_notifications(self, payload):
         instance_uuid = payload['nova_object.data']['uuid']
         instance_metadata = payload['nova_object.data']['metadata']
         if CONF.agent.agent_trigger_metadata_key in instance_metadata:

@@ -22,6 +22,7 @@ from oslo_service import wsgi
 from oslo_utils import importutils
 
 from kongming.api import app
+from kongming.agent import notification_handler
 from kongming.common import config
 from kongming.common import exception
 from kongming.common.i18n import _
@@ -36,7 +37,8 @@ LOG = log.getLogger(__name__)
 
 class RPCService(service.Service):
 
-    def __init__(self, manager_module, manager_class, topic, host=None):
+    def __init__(self, manager_module, manager_class, topic,
+                 init_notification_listener=False, host=None):
         super(RPCService, self).__init__()
         self.topic = topic
         self.host = host or CONF.host
@@ -44,6 +46,8 @@ class RPCService(service.Service):
         manager_class = getattr(manager_module, manager_class)
         self.manager = manager_class(self.topic, self.host)
         self.rpcserver = None
+        self.notification_listener = None
+        self.init_notification_listner = init_notification_listener
 
     def start(self):
         super(RPCService, self).start()
@@ -60,11 +64,31 @@ class RPCService(service.Service):
         LOG.info('Created RPC server for service %(service)s on host '
                  '%(host)s.',
                  {'service': self.topic, 'host': self.host})
+        if self.init_notification_listner:
+            transport = messaging.get_notification_transport(CONF)
+            targets = [
+                messaging.Target(topic='versioned_notifications',
+                                 exchange='nova')
+            ]
+            endpoints = [
+                notification_handler.NotificationEndpoint()
+            ]
+            self.notification_listener = messaging.get_notification_listener(
+                transport,
+                targets,
+                endpoints,
+                executor='threading',
+                pool=CONF.notification_handler.notifications_pool)
+
+            self.notification_listener.start()
 
     def stop(self, graceful=True):
         try:
             self.rpcserver.stop()
             self.rpcserver.wait()
+            if self.init_notification_listner:
+                self.notification_listener.stop()
+                self.notification_listener.wait()
         except Exception as e:
             LOG.exception('Service error occurred when stopping the '
                           'RPC server. Error: %s', e)
