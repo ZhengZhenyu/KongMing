@@ -163,6 +163,44 @@ class InstanceCPUMappingsController(rest.RestController):
                                                  mapping.instance_uuid)
         return InstanceCPUMapping.convert_with_links(mapping)
 
+    @policy.authorize_wsgi("kongming:instance_cpu_mapping", "update")
+    @wsme.validate(types.uuid, [InstanceCPUMappingPatchType])
+    @expose.expose(InstanceCPUMapping, types.uuid,
+                   body=[InstanceCPUMappingPatchType])
+    def patch(self, instance_uuid, patch):
+        """Update an instance cpu mapping.
+
+        :param instance_uuid: the uuid of the cpu mapping to be updated.
+        :param flavor: a json PATCH document to apply to this mapping.
+        """
+
+        db_mapping = objects.InstanceCPUMapping.get(
+            pecan.request.context, instance_uuid)
+
+        try:
+            mapping = InstanceCPUMapping(
+                **api_utils.apply_jsonpatch(db_mapping.as_dict(), patch))
+
+        except api_utils.JSONPATCH_EXCEPTIONS as e:
+            raise exception.PatchError(patch=patch, reason=e)
+
+        # Update only the fields that have changed
+        for field in objects.InstanceCPUMapping.fields:
+            try:
+                patch_val = getattr(mapping, field)
+            except AttributeError:
+                # Ignore fields that aren't exposed in the API
+                continue
+            if patch_val == wtypes.Unset:
+                patch_val = None
+            if db_mapping[field] != patch_val:
+                db_mapping[field] = patch_val
+
+        updated_mapping = pecan.request.agent_api.update_instance_cpu_mapping(
+            pecan.request.context, db_mapping)
+
+        return InstanceCPUMapping.convert_with_links(updated_mapping)
+
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "delete")
     @expose.expose(None, types.uuid, status_code=http_client.NO_CONTENT)
     def delete(self, mapping_uuid):

@@ -48,5 +48,10 @@ class ConductorAPI(object):
 
     def create_instance_cpu_mapping(self, context, mapping_obj):
         cctxt = self.client.prepare(topic=self.topic)
-        return cctxt.cast(context, 'create_instance_cpu_mapping',
+        return cctxt.cast(context, 'update_instance_cpu_mapping',
+                          mapping_obj=mapping_obj)
+
+    def update_instance_cpu_mapping(self, context, mapping_obj):
+        cctxt = self.client.prepare(topic=self.topic)
+        return cctxt.cast(context, 'update_instance_cpu_mapping',
                           mapping_obj=mapping_obj)

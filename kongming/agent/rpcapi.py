@@ -49,7 +49,7 @@ class EngineAPI(object):
                                      version_cap=self.RPC_API_VERSION,
                                      serializer=serializer)
 
-    def create_instance_cpu_mapping(self, context, mapping):
+    def update_instance_cpu_mapping(self, context, mapping):
         cctxt = self.client.prepare(server=mapping.host,
                                     version=self.RPC_API_VERSION)
         return cctxt.call(context, 'adjust_instance_cpu_mapping',

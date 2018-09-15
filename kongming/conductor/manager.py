@@ -33,13 +33,13 @@ class ConductorManager(object):
         super(ConductorManager, self).__init__()
         self.topic = topic
         self.host = host or CONF.host
-        self.agent_api = agent_rpcapi.EngineAPI()
+        self.agent_rpcapi = agent_rpcapi.EngineAPI()
 
     def periodic_tasks(self, context, raise_on_error=False):
         pass
 
-    def create_instance_cpu_mapping(self, context, mapping_obj):
-        result = self.agent_api.create_instance_cpu_mapping(
+    def update_instance_cpu_mapping(self, context, mapping_obj):
+        result = self.agent_rpcapi.update_instance_cpu_mapping(
             context, mapping_obj)
         if result:
             mapping_obj.status = states.SUCCEED

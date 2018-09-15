@@ -79,3 +79,18 @@ class API(object):
             context, new_mapping)
 
         return new_mapping
+
+    def update_instance_cpu_mapping(self, context, db_mapping):
+        inst_dict = self._get_instance(
+            context, db_mapping.instance_uuid)
+        if inst_dict['OS-EXT-STS:vm_state'] != 'active':
+            raise exception.BadRequest(
+                reason='Instance should with active vm_state to update '
+                       'the instance cpu mappings.')
+
+        pecan.request.conductor_api.update_instance_cpu_mapping(
+            context, db_mapping)
+        db_mapping.status = states.PENDING
+        db_mapping.save()
+
+        return db_mapping
