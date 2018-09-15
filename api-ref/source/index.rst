@@ -1,17 +1,9 @@
+:tocdepth: 2
+
 ==============
  Kongming API
 ==============
 
-Contents:
+.. rest_expand_all::
 
-.. toctree::
-    :maxdepth: 1
-
-    v1/index
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
+.. include:: instance_cpu_mappings.inc
