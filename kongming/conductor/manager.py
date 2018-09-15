@@ -63,16 +63,16 @@ class ConductorManager(object):
             LOG.debug('Instance CPU mapping for instance: %s not '
                       'exists in the system, do nothing.',
                       instance_uuid)
-
-        db_mapping.host = instance_host
-        result = self.agent_rpcapi.update_instance_cpu_mapping(
-            context, db_mapping)
-        if result:
-            db_mapping.status = states.SUCCEED
-            db_mapping.save()
-            LOG.debug('Instance CPU mapping for instance: %s updated '
-                      'successfully, set status to "succeed".',
-                      db_mapping.instance_uuid)
         else:
-            LOG.debug('Instance CPU mapping for instance: %s update '
-                      'failed.', db_mapping.instance_uuid)
+            db_mapping.host = instance_host
+            result = self.agent_rpcapi.update_instance_cpu_mapping(
+                context, db_mapping)
+            if result:
+                db_mapping.status = states.SUCCEED
+                db_mapping.save()
+                LOG.debug('Instance CPU mapping for instance: %s updated '
+                          'successfully, set status to "succeed".',
+                          db_mapping.instance_uuid)
+            else:
+                LOG.debug('Instance CPU mapping for instance: %s update '
+                          'failed.', db_mapping.instance_uuid)

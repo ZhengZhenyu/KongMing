@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_context import context
 from oslo_log import log as logging
 
 from kongming.conductor import rpcapi as conductor_rpcapi
@@ -33,6 +34,7 @@ class NotificationEndpoint(object):
                        metadata, priority):
         instance_uuid = payload['nova_object.data']['uuid']
         instance_host = payload['nova_object.data']['host']
+        ctxt = context.RequestContext.from_dict(ctxt)
         self.conductor_api.check_and_update_instance_cpu_mapping(
             ctxt, instance_uuid, instance_host)
         LOG.debug('Instance.create.end notification captured for '
