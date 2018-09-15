@@ -155,34 +155,25 @@ class InstanceCPUMappingsController(rest.RestController):
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "update")
     @expose.expose(InstanceCPUMapping, body=types.jsontype)
-    def patch(self, instance_uuid, patch):
+    def put(self, instance_uuid, mapping):
         """Update an instance cpu mapping.
 
         :param instance_uuid: the uuid of the cpu mapping to be updated.
-        :param patch: a json PATCH document to apply to this mapping.
+        :param patch: a mapping to apply to this update.
         """
-        for key in patch:
+        for key in mapping:
             if key not in ['cpu_mappings']:
                 raise exception.PatchError(
-                    patch=patch,
-                    reason='invalid field %s provided for update', key)
+                    patch=mapping,
+                    reason=('invalid field %s provided for update', key))
 
         db_mapping = objects.InstanceCPUMapping.get(
             pecan.request.context, instance_uuid)
 
-        try:
-            mapping = InstanceCPUMapping(
-                **api_utils.apply_jsonpatch(db_mapping.as_dict(), patch))
-
-        except api_utils.JSONPATCH_EXCEPTIONS as e:
-            raise exception.PatchError(patch=patch, reason=e)
-
         # Update only the fields that have changed
         for field in objects.InstanceCPUMapping.fields:
-            try:
-                patch_val = getattr(mapping, field)
-            except AttributeError:
-                # Ignore fields that aren't exposed in the API
+            patch_val = mapping.get(field)
+            if not patch_val:
                 continue
             if patch_val == wtypes.Unset:
                 patch_val = None
