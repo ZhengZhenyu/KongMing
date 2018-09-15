@@ -16,6 +16,7 @@
 from oslo_log import log as logging
 
 from kongming.conductor import rpcapi as conductor_rpcapi
+from kongming.conf import CONF
 
 LOG = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ SUPPORTED_ENVENTS = [
 
 
 class NotificationEndpoint(object):
-    def __init__(self):
+    def __init__(self, host=None):
+        self.host = host or CONF.host
         self.conductor_api = conductor_rpcapi.ConductorAPI()
 
     def _process_event(self, ctxt, publisher_id, event_type, payload,
@@ -39,7 +41,7 @@ class NotificationEndpoint(object):
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()
         if event_type_l in SUPPORTED_ENVENTS and \
-                payload['nova_object.data']['host'] == self.agent.host:
+                payload['nova_object.data']['host'] == self.host:
             self._process_event(ctxt, publisher_id, event_type,
                                 payload, metadata, 'INFO')
 

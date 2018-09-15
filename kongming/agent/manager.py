@@ -54,31 +54,6 @@ class AgentManager(object):
     def periodic_tasks(self, context, raise_on_error=False):
         pass
 
-    def execute_notifications(self, payload):
-        instance_uuid = payload['nova_object.data']['uuid']
-        instance_metadata = payload['nova_object.data']['metadata']
-        if CONF.agent.agent_trigger_metadata_key in instance_metadata:
-            cpu_set_list = instance_metadata[
-                CONF.agent.agent_trigger_metadata_key]
-            LOG.info('Trying to Pin VCPU for instance %s', instance_uuid)
-            pinng_map = utils.calculate_cpumap(cpu_set_list, self.maxcpu)
-            LOG.info('The calculated CPU map is ' + str(pinng_map))
-            dom = self.conn.lookupByUUIDString(instance_uuid)
-            instance_cpu_num = dom.info()[3]
-            LOG.info('Pin domain vcpus to host cpu %s.', pinng_map)
-            for i in xrange(0, instance_cpu_num):
-                LOG.info('Pin domain vcpu %s to host cpu %s with'
-                         'flag: %s...' % (i, pinng_map,
-                                       libvirt.VIR_DOMAIN_AFFECT_LIVE))
-                ret = dom.pinVcpuFlags(i, pinng_map,
-                                       libvirt.VIR_DOMAIN_AFFECT_LIVE)
-                if ret == 0:
-                    LOG.debug('...Success')
-                else:
-                    LOG.info('...Failed')
-
-            LOG.info('VCPU ping for instance %s finished', instance_uuid)
-
     def adjust_instance_cpu_mapping(self, context, mapping):
         instance_uuid = mapping['instance_uuid']
         cpu_mapping = mapping['cpu_mappings']
