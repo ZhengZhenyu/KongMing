@@ -16,8 +16,10 @@ from oslo_log import log as logging
 import oslo_messaging as messaging
 
 from kongming.agent import rpcapi as agent_rpcapi
+from kongming.common import exception
 from kongming.common import states
 from kongming.conf import CONF
+from kongming import objects
 
 
 LOG = logging.getLogger(__name__)
@@ -50,3 +52,27 @@ class ConductorManager(object):
         else:
             LOG.debug('Instance CPU mapping for instance: %s update '
                       'failed.', mapping_obj.instance_uuid)
+
+    def check_and_update_instance_cpu_mapping(self, context,
+                                              instance_uuid,
+                                              instance_host):
+        try:
+            db_mapping = objects.InstanceCPUMapping.get(
+                context, instance_uuid)
+        except exception.InstanceCPUMappingNotFound:
+            LOG.debug('Instance CPU mapping for instance: %s not '
+                      'exists in the system, do nothing.',
+                      instance_uuid)
+
+        db_mapping.host = instance_host
+        result = self.agent_rpcapi.update_instance_cpu_mapping(
+            context, db_mapping)
+        if result:
+            db_mapping.status = states.SUCCEED
+            db_mapping.save()
+            LOG.debug('Instance CPU mapping for instance: %s updated '
+                      'successfully, set status to "succeed".',
+                      db_mapping.instance_uuid)
+        else:
+            LOG.debug('Instance CPU mapping for instance: %s update '
+                      'failed.', db_mapping.instance_uuid)

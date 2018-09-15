@@ -78,7 +78,7 @@ class RPCService(service.Service):
                 targets,
                 endpoints,
                 executor='threading',
-                pool=CONF.notification_handler.notifications_pool)
+                pool='kongming-notification-handler')
 
             self.notification_listener.start()
 

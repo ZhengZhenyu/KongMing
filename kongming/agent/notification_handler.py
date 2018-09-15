@@ -15,7 +15,7 @@
 
 from oslo_log import log as logging
 
-from kongming.agent import manager as agent_manager
+from kongming.conductor import rpcapi as conductor_rpcapi
 
 LOG = logging.getLogger(__name__)
 
@@ -25,11 +25,16 @@ SUPPORTED_ENVENTS = [
 
 class NotificationEndpoint(object):
     def __init__(self):
-        self.agent = agent_manager.AgentManager()
+        self.conductor_api = conductor_rpcapi.ConductorAPI()
 
     def _process_event(self, ctxt, publisher_id, event_type, payload,
                        metadata, priority):
-        self.agent.execute_notifications(payload)
+        instance_uuid = payload['nova_object.data']['uuid']
+        instance_host = payload['nova_object.data']['host']
+        self.conductor_api(ctxt, instance_uuid, instance_host)
+        LOG.debug('Instance.create.end notification captured for '
+                  'instance: %s call conductor to do the rest '
+                  'of the job.', instance_uuid)
 
     def info(self, ctxt, publisher_id, event_type, payload, metadata):
         event_type_l = event_type.lower()

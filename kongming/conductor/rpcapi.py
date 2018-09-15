@@ -55,3 +55,11 @@ class ConductorAPI(object):
         cctxt = self.client.prepare(topic=self.topic)
         return cctxt.cast(context, 'update_instance_cpu_mapping',
                           mapping_obj=mapping_obj)
+
+    def check_and_update_instance_cpu_mapping(self, context,
+                                              instance_uuid,
+                                              instance_host):
+        cctxt = self.client.prepare(topic=self.topic)
+        return cctxt.cast(context, 'check_and_update_instance_cpu_mapping',
+                          instance_uuid=instance_uuid,
+                          instance_host=instance_host)
