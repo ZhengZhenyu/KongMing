@@ -91,16 +91,6 @@ class InstanceCPUMapping(base.APIBase):
         return api_mapping
 
 
-class InstanceCPUMappingPatchType(types.JsonPatchType):
-
-    _api_base = InstanceCPUMapping
-
-    @staticmethod
-    def internal_attrs():
-        defaults = types.JsonPatchType.internal_attrs()
-        return defaults + ['/project_id', '/user_id', 'instance_uuid']
-
-
 class InstanceCPUMappingCollection(base.APIBase):
     """API representation of a collection of InstanceCPUMapping."""
 
@@ -164,15 +154,18 @@ class InstanceCPUMappingsController(rest.RestController):
         return InstanceCPUMapping.convert_with_links(mapping)
 
     @policy.authorize_wsgi("kongming:instance_cpu_mapping", "update")
-    @wsme.validate(types.uuid, [InstanceCPUMappingPatchType])
-    @expose.expose(InstanceCPUMapping, types.uuid,
-                   body=[InstanceCPUMappingPatchType])
+    @expose.expose(InstanceCPUMapping, body=types.jsontype)
     def patch(self, instance_uuid, patch):
         """Update an instance cpu mapping.
 
         :param instance_uuid: the uuid of the cpu mapping to be updated.
-        :param flavor: a json PATCH document to apply to this mapping.
+        :param patch: a json PATCH document to apply to this mapping.
         """
+        for key in patch:
+            if key not in ['cpu_mappings']:
+                raise exception.PatchError(
+                    patch=patch,
+                    reason='invalid field %s provided for update', key)
 
         db_mapping = objects.InstanceCPUMapping.get(
             pecan.request.context, instance_uuid)
