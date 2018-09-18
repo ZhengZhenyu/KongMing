@@ -51,14 +51,15 @@ CONF.register_opts(client_opts, group=GROUP)
 ka_loading.register_session_conf_options(CONF, GROUP)
 ka_loading.register_auth_conf_options(CONF, GROUP)
 
+_km_session = None
 
 def _get_session():
-    global _session
-    if not _session:
+    global _km_session
+    if not _km_session:
         auth = ka_loading.load_auth_from_conf_options(CONF, GROUP)
-        _session = ka_loading.load_session_from_conf_options(
+        _km_session = ka_loading.load_session_from_conf_options(
             CONF, GROUP, auth=auth)
-    return _session
+    return _km_session
 
 
 def get_kongmingclient():

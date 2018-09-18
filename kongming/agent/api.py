@@ -75,8 +75,9 @@ class API(object):
 
         new_mapping.create()
 
-        pecan.request.conductor_api.create_instance_cpu_mapping(
-            context, new_mapping)
+        if not wait_until_active:
+            pecan.request.conductor_api.create_instance_cpu_mapping(
+                context, new_mapping)
 
         return new_mapping
 
