@@ -82,7 +82,7 @@ def translate_nova_exception(method):
     def wrapper(self, ctx, *args, **kwargs):
         try:
             res = method(self, ctx, *args, **kwargs)
-        except (nova_exceptions.ConnectionError,
+        except (nova_exceptions.ConnectionRefused,
                 keystone_exceptions.ConnectionError) as exc:
             err_msg = encodeutils.exception_to_unicode(exc)
             _reraise(exception.NovaConnectionFailed(reason=err_msg))
