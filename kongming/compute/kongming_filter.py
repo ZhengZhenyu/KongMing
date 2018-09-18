@@ -83,9 +83,11 @@ class KongmingFilter(filters.BaseHostFilter):
         client = get_kongmingclient()
         try:
             client.instance_cpu_mappings.create(
-            instance_uuid=spec_obj.instance_uuid,
-            cpu_mappings=requested_mapping,
-            wait_until_active=True)
+                instance_uuid=spec_obj.instance_uuid,
+                cpu_mappings=requested_mapping,
+                wait_until_active=True,
+                project_id=spec_obj.project_id,
+                user_id=spec_obj.user_id)
         except Exception:
             LOG.debug("Unable to connect to kongming, PASS.")
             return True

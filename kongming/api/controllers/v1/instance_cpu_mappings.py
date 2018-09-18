@@ -136,12 +136,21 @@ class InstanceCPUMappingsController(rest.RestController):
         :param mapping: a mapping within the request body.
         :return:
         """
+        provided_project_id = mapping.get('project_id')
+        provided_user_id = mapping.get('user_id')
+        if provided_project_id or provided_user_id:
+            if not pecan.request.context.is_admin:
+                raise exception.BadRequest(
+                    reason='Only admins can create mappings with '
+                    'project_id and user_id.'
+                )
         mapping_dict = {
             'instance_uuid': mapping['instance_uuid'],
             'cpu_mappings': mapping['cpu_mappings'],
             'wait_until_active': False,
-            'project_id': pecan.request.context.project_id,
-            'user_id': pecan.request.context.user_id
+            'project_id': (provided_project_id or
+                           pecan.request.context.project_id),
+            'user_id': provided_user_id or pecan.request.context.user_id
         }
 
         wait_until_active = mapping.get('wait_until_active')
