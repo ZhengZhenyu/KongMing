@@ -68,7 +68,8 @@ def get_kongmingclient():
     return kongming_client.Client(
         session=session,
         region_name=CONF.kongming_credentials.os_region_name,
-        endpoint_type=CONF.kongming_credentials.os_endpoint_type
+        endpoint_type=CONF.kongming_credentials.os_endpoint_type,
+        service_type='resource_pin'
     )
 
 
