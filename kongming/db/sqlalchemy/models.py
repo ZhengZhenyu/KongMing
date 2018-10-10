@@ -69,3 +69,36 @@ class InstanceCPUMapping(Base):
     host = Column(String(255), nullable=True)
     status = Column(String(255), nullable=True)
     cpu_mappings = Column(String(255), nullable=True)
+
+
+class Instance(Base):
+    """Represents the Instance."""
+
+    __tablename__ = 'instances'
+    __table_args__ = (
+        schema.UniqueConstraint('uuid',
+                                name='uniq_instances0uuid'),
+        table_args()
+    )
+
+    uuid = Column(String(36), primary_key=True, nullable=False)
+    project_id = Column(String(36), nullable=False)
+    user_id = Column(String(36), nullable=False)
+    host = Column(String(255), nullable=True)
+    status = Column(String(255), nullable=True)
+    cpu_mappings = Column(String(255), nullable=True)
+
+
+class Hosts(Base):
+    """Represents the Host."""
+
+    __tablename__ = 'hosts'
+    __table_args__ = (
+        schema.UniqueConstraint('host_name',
+                                name='uniq_hosts0host_name'),
+        table_args()
+    )
+
+    id = Column(Integer, primary_key=True)
+    host_name = Column(String(255), nullable=True)
+    cpu_topology = Column(String(255), nullable=True)

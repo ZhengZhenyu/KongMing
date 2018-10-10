@@ -46,3 +46,29 @@ def upgrade():
         mysql_ENGINE='InnoDB',
         mysql_DEFAULT_CHARSET='UTF8'
     )
+    op.create_table(
+        'instances',
+        sa.Column('created_at', sa.DateTime(), nullable=True),
+        sa.Column('updated_at', sa.DateTime(), nullable=True),
+        sa.Column('uuid', sa.String(length=36), nullable=False),
+        sa.Column('user_id', sa.String(length=36), nullable=False),
+        sa.Column('host', sa.String(length=255), nullable=True),
+        sa.Column('status', sa.String(length=255), nullable=True),
+        sa.Column('cpu_mappings', sa.String(length=255), nullable=True),
+        sa.PrimaryKeyConstraint('uuid'),
+        mysql_ENGINE='InnoDB',
+        mysql_DEFAULT_CHARSET='UTF8'
+    )
+    op.create_table(
+        'hosts',
+        sa.Column('created_at', sa.DateTime(), nullable=True),
+        sa.Column('updated_at', sa.DateTime(), nullable=True),
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('host_name', sa.String(length=255), nullable=True),
+        sa.Column('cpu_topology', sa.String(length=255), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('host_name',
+                            name='uniq_hosts0host_name'),
+        mysql_ENGINE='InnoDB',
+        mysql_DEFAULT_CHARSET='UTF8'
+    )

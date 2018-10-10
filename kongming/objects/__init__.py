@@ -26,3 +26,5 @@ def register_all():
     # function in order for it to be registered by services that may
     # need to receive it via RPC.
     __import__('kongming.objects.instance_cpu_mapping')
+    __import__('kongming.objects.instance')
+    __import__('kongming.objects.host')
