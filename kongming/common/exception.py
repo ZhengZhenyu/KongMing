@@ -202,3 +202,15 @@ class BadRequest(Invalid):
 
 class InstanceNotFound(NotFound):
     _msg_fmt = _("Instance could not be found: %(reason)s.")
+
+
+class HostNotFound(NotFound):
+    _msg_fmt = _("Host with name: %(host_name)s could not be found.")
+
+
+class HostAlreadyExists(KongMingException):
+    _msg_fmt = _("Host with host_name %(host_name)s already exists.")
+
+
+class InstanceAlreadyExists(KongMingException):
+    _msg_fmt = _("Instace with uuid %(uuid)s already exists.")

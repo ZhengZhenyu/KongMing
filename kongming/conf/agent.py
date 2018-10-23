@@ -20,7 +20,11 @@ executor_opts = [
     cfg.StrOpt('agent_trigger_metadata_key',
                default='kongming-vcpu-pinning',
                help='The key to be used to informing kongming for '
-                    'vcpu pinning')
+                    'vcpu pinning'),
+    cfg.IntOpt('update_resources_interval',
+               default=60,
+               help=_('Interval between syncing the resources from underlying '
+                      'hypervisor, in seconds.')),
 ]
 
 

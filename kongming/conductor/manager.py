@@ -76,3 +76,26 @@ class ConductorManager(object):
             else:
                 LOG.debug('Instance CPU mapping for instance: %s update '
                           'failed.', db_mapping.instance_uuid)
+
+    def check_and_update_host_resources(self, context, host):
+        try:
+            db_host = objects.Host.get(context, host.host_name)
+        except exception.HostNotFound:
+            host.create()
+        else:
+            db_host.cpu_topolody = host.cpu_topology
+            do_host.save()
+        LOG.debug('Host %s updated successfully.', host.host_name)
+
+    def check_and_update_instances(self, context, host, instances):
+        for instance in instances:
+            try:
+                db_instance = objects.Instance.get(context, instance.uuid)
+            except exception.InstanceNotFound:
+                instance.create()
+            else:
+                db_instance.cpu_topolody = instance.cpu_mappings
+                db_instance.host = instance.host
+                db_instance.status = instance.status
+                db_instance.save()
+            LOG.debug('Instance %s updated successfully.', instance.uuid)

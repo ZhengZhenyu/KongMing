@@ -13,25 +13,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from __future__ import print_function
 import libvirt
 
 from oslo_log import log as logging
 import oslo_messaging as messaging
+from oslo_service import periodic_task
 
 from kongming.common import utils
+from kongming.conductor import rpcapi as conductor_rpcapi
 from kongming.conf import CONF
+from kongming import objects
 
-# conn = libvirt.open('qemu:///system')
-# hostname = conn.getHostname()
-# node_info = conn.getInfo()
-# cpu_num = node_info[2]
-# numa_nodes_num = node_info[4]
-# dom = conn.lookupByUUIDString('827e2a24-7329-4281-b4a2-28f0e0807a51')
-# dom_id = dom.ID()
-# dom_uuid = dom.UUIDString()
-# dom_info = dom.info()  # state, max_mem, mem, cpu_num
-# dom.isActive()
 
 LOG = logging.getLogger(__name__)
 
@@ -48,11 +40,72 @@ class AgentManager(object):
         self.conn = libvirt.open('qemu:///system')
         self.hostname = self.conn.getHostname()
         self.maxcpu = self.conn.getInfo()[2]
+        self.conductor_api = conductor_rpcapi.ConductorAPI()
         LOG.info('The maximum cpu of host %s is %s',
                   self.hostname, self.maxcpu)
 
     def periodic_tasks(self, context, raise_on_error=False):
         pass
+
+    @periodic_task.periodic_task(
+        spacing=CONF.agent.update_resources_interval,
+        run_immediately=True)
+    def _update_resources(self, context):
+        """See driver.get_available_resource()
+
+        Periodic process that keeps that the agent's understanding of
+        resources in sync with the underlying hypervisor.
+
+        :param context: security context
+        """
+        self._update_host_resources(context)
+        self._update_instances(context)
+
+    def _update_host_resources(self, context):
+        host_cpu_topology = {}
+        capsXML = self.conn.getCapabilities()
+
+        caps = minidom.parseString(capsXML)
+        cells = caps.getElementsByTagName('cells')[0]
+
+        for cell in cells.getElementsByTagName('cell'):
+            id = str(cell.getAttribute('id'))
+            cpus = cell.getElementsByTagName('cpus')[0]
+            cpu_list = [int(cpu.getAttribute('id')) for cpu in
+                        cpus.getElementsByTagName('cpu')]
+            host_cpu_topology[id] = cpu_list
+
+        host = objects.Host(context, host_name=self.hostname,
+                            cpu_topology=host_cpu_topology)
+
+        self.conductor_api.check_and_update_host_resources(
+            context, host)
+
+    def _update_instances(self, context, instance_uuid=None):
+        instances = []
+
+        if instance_uuid:
+            doms = [self.conn.lookupByUUIDString(instance_uuid)]
+        else:
+            doms = self.conn.listAllDomains(
+                libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
+
+        for dom in doms:
+            status, reason = dom.state()
+            status = _map_domain_state(status)
+            cpu_maps = dom.vcpuPinInfo()
+            cpu_map = list(cpu_maps[0])
+            for raw_cpu_map in cpu_maps:
+                for i in xrange(len(cpu_map)):
+                    cpu_map[i - 1] = cpu_map[i - 1] or raw_cpu_map[i - 1]
+            instance = objects.Instance(
+                context, status=status, uuid=dom.UUIDString(),
+                host=self.hostname, cpu_mappings=cpu_map)
+            instances.append(instance)
+
+        instance_list_obj = objects.InstanceList(objects=instances)
+        self.conductor_api.check_and_update_instances(
+            context, self.host_name, instance_list_obj)
 
     def adjust_instance_cpu_mapping(self, context, mapping):
         instance_uuid = mapping['instance_uuid']

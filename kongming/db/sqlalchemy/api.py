@@ -184,3 +184,78 @@ class Connection(api.Connection):
             count = query.delete()
             if count != 1:
                 raise exception.InstanceCPUMappingNotFound(uuid=instance_uuid)
+
+    @oslo_db_api.retry_on_deadlock
+    def host_get_by_name(self, context, host_name):
+        query = model_query(
+            context,
+            models.Hosts).filter_by(
+            host_name=host_name)
+        try:
+            return query.one()
+        except NoResultFound:
+            raise exception.HostNotFound(host_name=host_name)
+
+    def host_update(self, context, host_name, updates):
+        if 'id' in updates:
+            msg = _("Cannot overwrite id for an existing Host.")
+            raise exception.InvalidParameterValue(err=msg)
+
+        return self._do_update_host(context, host_name, updates)
+
+    @oslo_db_api.retry_on_deadlock
+    def _do_update_host(self, context, host_name, updates):
+        with _session_for_write():
+            query = model_query(context,
+                                models.Hosts).filter_by(
+                                host_name=host_name)
+            try:
+                ref = query.with_lockmode('update').one()
+            except NoResultFound:
+                raise exception.HostNotFound(host_name=host_name)
+
+            ref.update(values)
+        return ref
+
+    @oslo_db_api.retry_on_deadlock
+    def host_create(self, context, values):
+        host = models.Hosts()
+        host.update(values)
+
+        with _session_for_write() as session:
+            try:
+                session.add(host)
+                session.flush()
+            except db_exc.DBDuplicateEntry:
+                raise exception.HostAlreadyExists(
+                    host_name=values['host_name'])
+            return host
+
+    @oslo_db_api.retry_on_deadlock
+    def instance_update(self, context, uuid, updates):
+        """Update instance by uuid."""
+        with _session_for_write():
+            query = model_query(context,
+                                models.Instance).filter_by(
+                                uuid=uuid)
+            try:
+                ref = query.with_lockmode('update').one()
+            except NoResultFound:
+                raise exception.InstanceNotFound(reason=uuid)
+
+            ref.update(values)
+        return ref
+
+    @oslo_db_api.retry_on_deadlock
+    def instance_create(self, context, values):
+        instance = models.Instance()
+        instance.update(values)
+
+        with _session_for_write() as session:
+            try:
+                session.add(instance)
+                session.flush()
+            except db_exc.DBDuplicateEntry:
+                raise exception.InstanceAlreadyExists(
+                    uuid=values['uuid'])
+            return host

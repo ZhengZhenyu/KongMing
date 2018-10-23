@@ -63,3 +63,23 @@ class Connection(object):
     @abc.abstractmethod
     def instance_cpu_mapping_update(self, context, instance_uuid, values):
         """Update a Mapping"""
+
+    @abc.abstractmethod
+    def host_get_by_name(self, context, host_name):
+        """Get host by name."""
+
+    @abc.abstractmethod
+    def host_update(self, context, host_name, updates):
+        """Update host by name."""
+
+    @abc.abstractmethod
+    def host_create(self, context, values):
+        """Create a new host."""
+
+    @abc.abstractmethod
+    def instance_update(self, context, uuid, updates):
+        """Update instance by uuid."""
+
+    @abc.abstractmethod
+    def instance_create(self, context, values):
+        """Create a new instance."""

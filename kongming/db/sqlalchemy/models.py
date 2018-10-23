@@ -82,8 +82,6 @@ class Instance(Base):
     )
 
     uuid = Column(String(36), primary_key=True, nullable=False)
-    project_id = Column(String(36), nullable=False)
-    user_id = Column(String(36), nullable=False)
     host = Column(String(255), nullable=True)
     status = Column(String(255), nullable=True)
     cpu_mappings = Column(String(255), nullable=True)
@@ -101,4 +99,4 @@ class Hosts(Base):
 
     id = Column(Integer, primary_key=True)
     host_name = Column(String(255), nullable=True)
-    cpu_topology = Column(String(255), nullable=True)
+    cpu_topology = Column(Text, nullable=True)

@@ -127,3 +127,19 @@ class KongmingObjectSerializer(object_base.VersionedObjectSerializer):
     # Base class to use for object hydration
     OBJ_BASE_CLASS = KongmingObject
 
+
+class ObjectListBase(object_base.ObjectListBase):
+
+    @classmethod
+    def _obj_primitive_key(cls, field):
+        return 'kongming_object.%s' % field
+
+    @classmethod
+    def _obj_primitive_field(cls, primitive, field,
+                             default=object_fields.UnspecifiedDefault):
+        key = cls._obj_primitive_key(field)
+        if default == object_fields.UnspecifiedDefault:
+            return primitive[key]
+        else:
+            return primitive.get(key, default)
+

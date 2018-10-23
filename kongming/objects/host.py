@@ -70,7 +70,7 @@ class Host(base.KongmingObject,
     @classmethod
     def get(cls, context, host_name):
         """Find a Mapping and return a Mapping object."""
-        db_host = cls.dbapi.host_get(context, host_name)
+        db_host = cls.dbapi.host_get_by_name(context, host_name)
         host = Host._from_db_object(
             context, cls(context), db_host)
         return host

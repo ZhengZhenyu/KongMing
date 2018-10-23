@@ -32,8 +32,6 @@ class Instance(base.KongmingObject,
 
     fields = {
         'uuid': object_fields.UUIDField(nullable=True),
-        'project_id': object_fields.UUIDField(nullable=True),
-        'user_id': object_fields.UUIDField(nullable=True),
         'status': object_fields.StringField(nullable=True),
         'host': object_fields.StringField(nullable=True),
         'cpu_mappings': object_fields.StringField(nullable=True),
@@ -95,3 +93,17 @@ class Instance(base.KongmingObject,
         if updates:
             self.dbapi.instance_update(
                 context, self.uuid, updates)
+
+
+@base.KongmingObjectRegistry.register
+class InstanceList(base.ObjectListBase,
+                   base.KongmingObject,
+                   object_base.VersionedObjectDictCompat):
+    # Version 1.0: Initial Version
+    VERSION = '1.0'
+
+    dbapi = dbapi.get_instance()
+
+    fields = {
+        'objects': fields.ListOfObjectsField('Instance'),
+    }

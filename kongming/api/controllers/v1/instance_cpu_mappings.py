@@ -155,7 +155,7 @@ class InstanceCPUMappingsController(rest.RestController):
 
         wait_until_active = mapping.get('wait_until_active')
 
-        LOG.debug('xxx wait until active is %s for this call',
+        LOG.debug('Wait until active is %s for this call',
                   wait_until_active)
         mapping = pecan.request.agent_api.create_instance_cpu_mapping(
             pecan.request.context, mapping_dict, wait_until_active)
