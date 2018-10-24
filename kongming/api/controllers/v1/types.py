@@ -25,6 +25,23 @@ from kongming.common import exception
 from kongming.common.i18n import _
 
 
+class StringType(wtypes.UserType):
+    """A simple string type."""
+
+    basetype = wtypes.text
+    name = 'string'
+
+    @staticmethod
+    def validate(value):
+        return value
+
+    @staticmethod
+    def frombasetype(value):
+        if value is None:
+            return None
+        return StringType.validate(value)
+
+
 class UUIDType(wtypes.UserType):
     """A simple UUID type."""
 
@@ -85,6 +102,7 @@ class BooleanType(wtypes.UserType):
         return BooleanType.validate(value)
 
 
+string = StringType()
 uuid = UUIDType()
 jsontype = JsonType()
 boolean = BooleanType()

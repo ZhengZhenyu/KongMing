@@ -259,3 +259,15 @@ class Connection(api.Connection):
                 raise exception.InstanceAlreadyExists(
                     uuid=values['uuid'])
             return host
+
+    @oslo_db_api.retry_on_deadlock
+    def instance_get(self, context, uuid):
+        query = model_query(
+            context,
+            models.Instance).filter_by(
+            uuid=uuid)
+        try:
+            return query.one()
+        except NoResultFound:
+            reason = ('Instance with uuid %s could not be found', uuid)
+            raise exception.InstanceNotFound(reason=reason)

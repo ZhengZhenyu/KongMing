@@ -83,3 +83,7 @@ class Connection(object):
     @abc.abstractmethod
     def instance_create(self, context, values):
         """Create a new instance."""
+
+    @abc.abstractmethod
+    def instance_get(self, context, uuid):
+        """Get an instance by uuid"""

@@ -21,6 +21,8 @@ from wsme import types as wtypes
 
 from kongming.api.controllers import base
 from kongming.api.controllers import link
+from kongming.api.controllers.v1 import hosts
+from kongming.api.controllers.v1 import instances
 from kongming.api.controllers.v1 import instance_cpu_mappings
 from kongming.api import expose
 
@@ -34,6 +36,12 @@ class V1(base.APIBase):
     instance_cpu_mappings = [link.Link]
     """Links to the mapping resource"""
 
+    hosts = [link.Link]
+    """Links to the host resource"""
+
+    instances = [link.Link]
+    """Links to the instance resource"""
+
     @staticmethod
     def convert():
         v1 = V1()
@@ -44,6 +52,18 @@ class V1(base.APIBase):
             link.Link.make_link('bookmark', pecan.request.public_url,
                                 'instance_cpu_mappings', '', bookmark=True)
             ]
+        v1.hosts = [
+            link.Link.make_link('self', pecan.request.public_url,
+                                'hosts', ''),
+            link.Link.make_link('bookmark', pecan.request.public_url,
+                                'hosts', '', bookmark=True)
+            ]
+        v1.instances = [
+            link.Link.make_link('self', pecan.request.public_url,
+                                'instances', ''),
+            link.Link.make_link('bookmark', pecan.request.public_url,
+                                'instances', '', bookmark=True)
+            ]
         return v1
 
 
@@ -52,6 +72,8 @@ class Controller(rest.RestController):
 
     instance_cpu_mappings = \
         instance_cpu_mappings.InstanceCPUMappingsController()
+    hosts = hosts.HostsController()
+    instances = instances.InstancesController()
 
     @expose.expose(V1)
     def get(self):
