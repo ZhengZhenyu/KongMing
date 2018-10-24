@@ -89,9 +89,22 @@ mapping_policies = [
                        description='Update Mapping records'),
 ]
 
+instance_policies = [
+    policy.RuleDefault('kongming:instance:get',
+                       'rule:default',
+                       description='Retrieve Instance records'),
+]
+
+host_policies = [
+    policy.RuleDefault('kongming:host:get',
+                       'rule:default',
+                       description='Retrieve Host records')
+]
+
 
 def list_policies():
-    policies = (default_policies + mapping_policies)
+    policies = (default_policies + mapping_policies
+                + instance_policies + host_policies)
     return policies
 
 
