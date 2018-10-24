@@ -84,7 +84,7 @@ class Instance(Base):
     uuid = Column(String(36), primary_key=True, nullable=False)
     host = Column(String(255), nullable=True)
     status = Column(String(255), nullable=True)
-    cpu_mappings = Column(String(255), nullable=True)
+    cpu_mappings = Column(Text, nullable=True)
 
 
 class Hosts(Base):

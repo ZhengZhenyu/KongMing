@@ -94,10 +94,11 @@ class AgentManager(object):
             status, reason = dom.state()
             status = _map_domain_state(status)
             cpu_maps = dom.vcpuPinInfo()
-            cpu_map = list(cpu_maps[0])
-            for raw_cpu_map in cpu_maps:
-                for i in xrange(len(cpu_map)):
-                    cpu_map[i - 1] = cpu_map[i - 1] or raw_cpu_map[i - 1]
+            cpu_map = {}
+            cpu_num = 0
+            for map in cpu_maps:
+                cpu_map[str(cpu_num)] = list(map)
+                cpu_num += 1
             instance = objects.Instance(
                 context, status=status, uuid=dom.UUIDString(),
                 host=self.hostname, cpu_mappings=cpu_map)

@@ -34,7 +34,8 @@ class Instance(base.KongmingObject,
         'uuid': object_fields.UUIDField(nullable=True),
         'status': object_fields.StringField(nullable=True),
         'host': object_fields.StringField(nullable=True),
-        'cpu_mappings': object_fields.StringField(nullable=True),
+        'cpu_mappings': object_fields.DictOfListOfStringsField(
+            nullable=True),
     }
 
     def __init__(self, context=None, **kwargs):

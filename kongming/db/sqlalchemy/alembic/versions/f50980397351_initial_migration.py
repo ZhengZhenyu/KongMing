@@ -19,13 +19,15 @@ Create Date: 2018-05-26 08:44:36.010417
 
 """
 
-# revision identifiers, used by Alembic.
-revision = 'f50980397351'
-down_revision = None
-
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import Text
+
+
+# revision identifiers, used by Alembic.
+revision = 'f50980397351'
+down_revision = None
 
 
 def upgrade():
@@ -51,10 +53,9 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
         sa.Column('uuid', sa.String(length=36), nullable=False),
-        sa.Column('user_id', sa.String(length=36), nullable=False),
         sa.Column('host', sa.String(length=255), nullable=True),
         sa.Column('status', sa.String(length=255), nullable=True),
-        sa.Column('cpu_mappings', sa.String(length=255), nullable=True),
+        sa.Column('cpu_mappings', Text, nullable=True),
         sa.PrimaryKeyConstraint('uuid'),
         mysql_ENGINE='InnoDB',
         mysql_DEFAULT_CHARSET='UTF8'
@@ -65,7 +66,7 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(), nullable=True),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('host_name', sa.String(length=255), nullable=True),
-        sa.Column('cpu_topology', sa.String(length=255), nullable=True),
+        sa.Column('cpu_topology', Text, nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('host_name',
                             name='uniq_hosts0host_name'),
