@@ -33,7 +33,8 @@ class Host(base.KongmingObject,
     fields = {
         'id': object_fields.IntegerField(),
         'host_name': object_fields.StringField(nullable=True),
-        'cpu_topology': object_fields.StringField(nullable=True),
+        'cpu_topology': object_fields.DictOfListOfStringsField(
+            nullable=True),
     }
 
     def __init__(self, context=None, **kwargs):

@@ -14,6 +14,7 @@
 #    under the License.
 
 import libvirt
+from xml.dom import minidom
 
 from oslo_log import log as logging
 import oslo_messaging as messaging
@@ -35,7 +36,7 @@ class AgentManager(periodic_task.PeriodicTasks):
     target = messaging.Target(version=RPC_API_VERSION)
 
     def __init__(self, topic, host=None):
-        super(BaseEngineManager, self).__init__(CONF)
+        super(AgentManager, self).__init__(CONF)
         self.topic = topic
         self.host = host or CONF.host
         self.conn = libvirt.open('qemu:///system')
