@@ -74,6 +74,21 @@ class InstanceCPUMapping(Base):
     cpu_mappings = Column(String(255), nullable=True)
 
 
+class Hosts(Base):
+    """Represents the Host."""
+
+    __tablename__ = 'hosts'
+    __table_args__ = (
+        schema.UniqueConstraint('host_name',
+                                name='uniq_hosts0host_name'),
+        table_args()
+    )
+
+    id = Column(Integer, primary_key=True)
+    host_name = Column(String(255), nullable=True)
+    cpu_topology = Column(db_types.JsonEncodedDict)
+
+
 class Instance(Base):
     """Represents the Instance."""
 
@@ -93,18 +108,3 @@ class Instance(Base):
         backref=orm.backref('instances', uselist=False),
         foreign_keys=host,
         primaryjoin='Hosts.host_name == Instance.host')
-
-
-class Hosts(Base):
-    """Represents the Host."""
-
-    __tablename__ = 'hosts'
-    __table_args__ = (
-        schema.UniqueConstraint('host_name',
-                                name='uniq_hosts0host_name'),
-        table_args()
-    )
-
-    id = Column(Integer, primary_key=True)
-    host_name = Column(String(255), nullable=True)
-    cpu_topology = Column(db_types.JsonEncodedDict)
