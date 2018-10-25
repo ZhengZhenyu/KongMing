@@ -21,8 +21,10 @@ from oslo_db.sqlalchemy import types as db_types
 import six.moves.urllib.parse as urlparse
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Index
-from sqlalchemy import Text
+from sqlalchemy import orm
 from sqlalchemy import schema
+from sqlalchemy import Text
+
 
 from kongming.common import paths
 from kongming.conf import CONF
