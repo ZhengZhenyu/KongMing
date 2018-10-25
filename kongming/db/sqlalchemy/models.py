@@ -105,6 +105,6 @@ class Instance(Base):
     cpu_mappings = Column(db_types.JsonEncodedDict)
     host_ = orm.relationship(
         Hosts,
-        backref=orm.backref('instances', uselist=False),
+        backref=orm.backref('instances', uselist=True),
         foreign_keys=host,
         primaryjoin='Hosts.host_name == Instance.host')
