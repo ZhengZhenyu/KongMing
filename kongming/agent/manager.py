@@ -125,7 +125,7 @@ class AgentManager(periodic_task.PeriodicTasks):
 
         instance_list_obj = objects.InstanceList(objects=instances)
         self.conductor_api.check_and_update_instances(
-            context, self.host_name, instance_list_obj)
+            context, self.hostname, instance_list_obj)
 
     def _map_domain_state(self, status):
         state_dict = {

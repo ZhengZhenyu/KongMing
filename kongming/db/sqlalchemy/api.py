@@ -258,7 +258,7 @@ class Connection(api.Connection):
             except db_exc.DBDuplicateEntry:
                 raise exception.InstanceAlreadyExists(
                     uuid=values['uuid'])
-            return host
+            return instance
 
     @oslo_db_api.retry_on_deadlock
     def instance_get(self, context, uuid):
