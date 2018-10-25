@@ -84,7 +84,7 @@ class ConductorManager(object):
             host.create()
         else:
             db_host.cpu_topolody = host.cpu_topology
-            do_host.save()
+            db_host.save()
         LOG.debug('Host %s updated successfully.', host.host_name)
 
     def check_and_update_instances(self, context, host, instances):

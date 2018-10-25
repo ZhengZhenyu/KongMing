@@ -111,7 +111,7 @@ class AgentManager(periodic_task.PeriodicTasks):
 
         for dom in doms:
             status, reason = dom.state()
-            status = _map_domain_state(status)
+            status = self._map_domain_state(str(status))
             cpu_maps = dom.vcpuPinInfo()
             cpu_map = {}
             cpu_num = 0
@@ -126,6 +126,20 @@ class AgentManager(periodic_task.PeriodicTasks):
         instance_list_obj = objects.InstanceList(objects=instances)
         self.conductor_api.check_and_update_instances(
             context, self.host_name, instance_list_obj)
+
+    def _map_domain_state(self, status):
+        state_dict = {
+            "0": "No State",
+            "1": "Running",
+            "2": "Blocked",
+            "3": "Paused",
+            "4": "Shutdown",
+            "5": "Shutoff",
+            "6": "Crashed",
+            "7": "Suspended",
+            "8": "Last"
+        }
+        return state_dict[status]
 
     def adjust_instance_cpu_mapping(self, context, mapping):
         instance_uuid = mapping['instance_uuid']

@@ -45,7 +45,7 @@ class Host(base.KongmingObject,
         if expected_attrs is None:
             expected_attrs = []
 
-        for name, field in instance.fields.items():
+        for name, field in host.fields.items():
             value = db_host[name]
             if isinstance(field, object_fields.IntegerField):
                 value = value if value is not None else 0
