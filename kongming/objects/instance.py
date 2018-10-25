@@ -55,8 +55,8 @@ class Instance(base.KongmingObject,
         instance.obj_reset_changes()
         return instance
 
-    @classmethod
-    def _from_db_object_list(cls, db_objects, context):
+    @staticmethod
+    def _from_db_object_list(db_objects, cls, context):
         """Converts a list of database entities to a list of formal objects"""
 
         return [Instance._from_db_object(context, cls(context), obj)
@@ -71,7 +71,7 @@ class Instance(base.KongmingObject,
 
     @classmethod
     def get(cls, context, instance_uuid):
-        """Find a Mapping and return a Mapping object."""
+        """Find a instance and return a Instance object."""
         db_instance = cls.dbapi.instance_get(context, instance_uuid)
         instance = Instance._from_db_object(
             context, cls(context), db_instance)
@@ -81,7 +81,7 @@ class Instance(base.KongmingObject,
     def get_instances_by_host_name(cls, context, host_name):
         db_instances = cls.dbapi.instances_get_by_host_name(
             context, host_name)
-        return self.from_db_object_list(cls, db_instances, context)
+        return Instance._from_db_object_list(db_instances, cls, context)
 
     def create(self, context=None):
         """Create a Mapping record in the DB."""
