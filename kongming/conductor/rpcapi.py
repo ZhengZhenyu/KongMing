@@ -66,9 +66,9 @@ class ConductorAPI(object):
 
     def check_and_update_host_resources(self, context, host):
         cctxt = self.client.prepare(topic=self.topic)
-        return cctxt.call(context, 'check_and_update_host_resources', host)
+        return cctxt.call(context, 'check_and_update_host_resources', host=host)
 
     def check_and_update_instances(self, context, host, instance_list):
         cctxt = self.client.prepare(topic=self.topic)
         return cctxt.call(context, 'check_and_update_instances',
-                          host, instance_list)
+                          host=host, instances=instance_list)
