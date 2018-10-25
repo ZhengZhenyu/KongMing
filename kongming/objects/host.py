@@ -22,6 +22,9 @@ from kongming.objects import fields as object_fields
 LOG = logging.getLogger(__name__)
 
 
+OPTIONAL_ATTRS = ['instances']
+
+
 @base.KongmingObjectRegistry.register
 class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
     # Version 1.0: Initial version
@@ -46,11 +49,12 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
         if expected_attrs is None:
             expected_attrs = []
 
-        for name, field in (set(host.fields) - set(OPTIONAL_ATTRS)).items():
-            value = db_host[name]
-            if isinstance(field, object_fields.IntegerField):
-                value = value if value is not None else 0
-            host[name] = value
+        for name, field in host.fields.items():
+            if name not in OPTIONAL_ATTRS:
+                value = db_host[name]
+                if isinstance(field, object_fields.IntegerField):
+                    value = value if value is not None else 0
+                host[name] = value
 
         if 'instances' in expected_attrs:
             host._load_instances(host._context, host.host_name)
