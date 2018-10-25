@@ -51,7 +51,7 @@ class Instance(base.APIBase):
     status = wtypes.text
     """The status of the instance"""
 
-    cpu_mappings = {wtypes.text: types.listtype}
+    cpu_mappings = types.jsontype
     """The CPU mappings of the instance"""
 
     hosts = wtypes.text

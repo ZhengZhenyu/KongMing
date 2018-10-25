@@ -15,6 +15,7 @@
 
 import inspect
 import json
+import six
 
 from oslo_utils import strutils
 from oslo_utils import uuidutils
