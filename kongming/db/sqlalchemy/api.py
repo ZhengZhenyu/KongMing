@@ -214,7 +214,7 @@ class Connection(api.Connection):
             except NoResultFound:
                 raise exception.HostNotFound(host_name=host_name)
 
-            ref.update(values)
+            ref.update(updates)
         return ref
 
     @oslo_db_api.retry_on_deadlock
@@ -243,7 +243,7 @@ class Connection(api.Connection):
             except NoResultFound:
                 raise exception.InstanceNotFound(reason=uuid)
 
-            ref.update(values)
+            ref.update(updates)
         return ref
 
     @oslo_db_api.retry_on_deadlock
