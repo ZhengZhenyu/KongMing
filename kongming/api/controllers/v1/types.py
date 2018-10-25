@@ -102,10 +102,35 @@ class BooleanType(wtypes.UserType):
         return BooleanType.validate(value)
 
 
+class ListType(wtypes.UserType):
+    """A simple list type."""
+
+    basetype = wtypes.text
+    name = 'list'
+
+    @staticmethod
+    def validate(value):
+        """Validate and convert the input to a ListType.
+
+        :param value: A comma separated string of values
+        :returns: A list of unique values, whose order is not guaranteed.
+        """
+        items = [v.strip().lower() for v in six.text_type(value).split(',')]
+        # filter() to remove empty items
+        # set() to remove duplicated items
+        return list(set(filter(None, items)))
+
+    @staticmethod
+    def frombasetype(value):
+        if value is None:
+            return None
+        return ListType.validate(value)
+
 string = StringType()
 uuid = UUIDType()
 jsontype = JsonType()
 boolean = BooleanType()
+listtype = ListType
 
 
 class JsonPatchType(wtypes.Base):

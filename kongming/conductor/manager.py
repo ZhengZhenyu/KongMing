@@ -94,7 +94,7 @@ class ConductorManager(object):
             except exception.InstanceNotFound:
                 instance.create()
             else:
-                db_instance.cpu_topolody = instance.cpu_mappings
+                db_instance.cpu_mappings = instance.cpu_mappings
                 db_instance.host = instance.host
                 db_instance.status = instance.status
                 db_instance.save()

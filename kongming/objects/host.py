@@ -23,8 +23,7 @@ LOG = logging.getLogger(__name__)
 
 
 @base.KongmingObjectRegistry.register
-class Host(base.KongmingObject,
-               object_base.VersionedObjectDictCompat):
+class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
     # Version 1.0: Initial version
     VERSION = '1.0'
 
