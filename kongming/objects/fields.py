@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import ast
+import six
+
 from oslo_versionedobjects import fields as object_fields
 
 

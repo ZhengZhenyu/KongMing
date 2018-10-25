@@ -17,6 +17,7 @@
 
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import models
+from oslo_db.sqlalchemy import types as db_types
 import six.moves.urllib.parse as urlparse
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Index
@@ -84,7 +85,7 @@ class Instance(Base):
     uuid = Column(String(36), primary_key=True, nullable=False)
     host = Column(String(255), nullable=True)
     status = Column(String(255), nullable=True)
-    cpu_mappings = Column(Text, nullable=True)
+    cpu_mappings = Column(db_types.JsonEncodedDict)
 
 
 class Hosts(Base):
@@ -99,4 +100,4 @@ class Hosts(Base):
 
     id = Column(Integer, primary_key=True)
     host_name = Column(String(255), nullable=True)
-    cpu_topology = Column(Text, nullable=True)
+    cpu_topology = Column(db_types.JsonEncodedDict)
