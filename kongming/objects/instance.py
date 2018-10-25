@@ -106,5 +106,5 @@ class InstanceList(base.ObjectListBase,
     dbapi = dbapi.get_instance()
 
     fields = {
-        'objects': fields.ListOfObjectsField('Instance'),
+        'objects': object_fields.ListOfObjectsField('Instance'),
     }

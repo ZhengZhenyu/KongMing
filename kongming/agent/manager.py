@@ -28,24 +28,42 @@ from kongming import objects
 LOG = logging.getLogger(__name__)
 
 
-class AgentManager(object):
+class AgentManager(periodic_task.PeriodicTasks):
     """Kongming Agent manager main class."""
 
     RPC_API_VERSION = '1.0'
     target = messaging.Target(version=RPC_API_VERSION)
 
     def __init__(self, topic, host=None):
+        super(BaseEngineManager, self).__init__(CONF)
         self.topic = topic
         self.host = host or CONF.host
         self.conn = libvirt.open('qemu:///system')
         self.hostname = self.conn.getHostname()
         self.maxcpu = self.conn.getInfo()[2]
         self.conductor_api = conductor_rpcapi.ConductorAPI()
+        self._started = False
         LOG.info('The maximum cpu of host %s is %s',
                   self.hostname, self.maxcpu)
 
+    def init_host(self):
+        """Initialize the agent host.
+
+        :param admin_context: the admin context to pass to periodic tasks.
+        :raises RuntimeError: when engine is already running.
+        """
+        if self._started:
+            raise RuntimeError(_('Attempt to start an already running '
+                                 'engine manager'))
+
+        self._started = True
+
+    def del_host(self):
+        self._worker_pool.waitall()
+        self._started = False
+
     def periodic_tasks(self, context, raise_on_error=False):
-        pass
+        return self.run_periodic_tasks(context, raise_on_error=raise_on_error)
 
     @periodic_task.periodic_task(
         spacing=CONF.agent.update_resources_interval,
