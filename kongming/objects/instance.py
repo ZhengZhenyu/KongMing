@@ -108,3 +108,11 @@ class InstanceList(base.ObjectListBase,
     fields = {
         'objects': object_fields.ListOfObjectsField('Instance'),
     }
+
+    @classmethod
+    def get_by_host_name(cls, context, host_name):
+        db_instances = cls.dbapi.instances_get_by_host_name(
+            context, host_name)
+        return object_base.obj_make_list(context, cls(context),
+                                         objects.Instance,
+                                         db_instances)

@@ -271,3 +271,20 @@ class Connection(api.Connection):
         except NoResultFound:
             reason = ('Instance with uuid %s could not be found', uuid)
             raise exception.InstanceNotFound(reason=reason)
+
+    @oslo_db_api.retry_on_deadlock
+    def instances_get_by_host_name(self, context, host_name):
+        """Get a list of instances by hostname"""
+        if not host_name:
+            return []
+
+        rows = model_query(context, models.Instance).\
+            filter(models.Instance.host.in_(host_name)).all()
+
+        output = []
+
+        for row in rows:
+            data = dict(row)
+            output.append(data)
+
+        return output

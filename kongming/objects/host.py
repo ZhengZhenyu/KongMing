@@ -34,6 +34,8 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
         'host_name': object_fields.StringField(nullable=True),
         'cpu_topology': object_fields.FlexibleDictField(
             nullable=True),
+        'instances': object_fields.ListOfObjectsField(
+            'Instance', nullable=True)
     }
 
     def __init__(self, context=None, **kwargs):
@@ -50,15 +52,23 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
                 value = value if value is not None else 0
             host[name] = value
 
+        if 'instances' in expected_attrs:
+            host._load_instances(host._context, host.host_name)
+
         host.obj_reset_changes()
         return host
 
     @staticmethod
-    def _from_db_object_list(db_objects, cls, context):
+    def _from_db_object_list(db_objects, cls, context, expect_attrs=None):
         """Converts a list of database entities to a list of formal objects"""
 
-        return [Host._from_db_object(context, cls(context), obj)
-                for obj in db_objects]
+        return [Host._from_db_object(
+            context, cls(context), obj, expected_attrs=expect_attrs)
+            for obj in db_objects]
+
+    def _load_instances(self, context, host_name):
+        self.instnaces = objects.InstanceList.get_by_host_name(
+            context=context, host_name=host_name)
 
     @classmethod
     def list(cls, context):
@@ -68,11 +78,11 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
             db_hosts, cls, context)
 
     @classmethod
-    def get(cls, context, host_name):
+    def get(cls, context, host_name, expected_attrs=None):
         """Find a Mapping and return a Mapping object."""
         db_host = cls.dbapi.host_get_by_name(context, host_name)
         host = Host._from_db_object(
-            context, cls(context), db_host)
+            context, cls(context), db_host, expected_attrs)
         return host
 
     def create(self, context=None):

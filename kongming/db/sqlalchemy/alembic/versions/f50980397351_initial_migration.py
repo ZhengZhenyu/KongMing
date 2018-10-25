@@ -56,6 +56,7 @@ def upgrade():
         sa.Column('host', sa.String(length=255), nullable=True),
         sa.Column('status', sa.String(length=255), nullable=True),
         sa.Column('cpu_mappings', Text, nullable=True),
+        sa.ForeignKeyConstraint(['host'], ['hosts.host_name']),
         sa.PrimaryKeyConstraint('uuid'),
         mysql_ENGINE='InnoDB',
         mysql_DEFAULT_CHARSET='UTF8'

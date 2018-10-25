@@ -51,6 +51,9 @@ class Host(base.APIBase):
     cpu_topology = types.jsontype
     """The cpu topology of the host"""
 
+    instances = types.jsontype
+    """The instances on this host"""
+
     links = wsme.wsattr([link.Link], readonly=True)
     """A list containing a self link"""
 
@@ -105,5 +108,5 @@ class HostsController(rest.RestController):
         :param host_name: name of the host.
         """
         db_host = objects.Host.get(
-            pecan.request.context, host_name)
+            pecan.request.context, host_name, expected_attrs=['instances'])
         return Host.convert_with_links(db_host)

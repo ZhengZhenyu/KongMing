@@ -87,3 +87,7 @@ class Connection(object):
     @abc.abstractmethod
     def instance_get(self, context, uuid):
         """Get an instance by uuid"""
+
+    @abc.abstractmethod
+    def instances_get_by_host_name(self, context, host_name):
+        """Get a list of instances by hostname"""
