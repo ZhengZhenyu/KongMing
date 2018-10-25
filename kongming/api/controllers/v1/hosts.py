@@ -51,7 +51,7 @@ class Host(base.APIBase):
     cpu_topology = types.jsontype
     """The cpu topology of the host"""
 
-    instances = types.jsontype
+    instances = [types.jsontype]
     """The instances on this host"""
 
     links = wsme.wsattr([link.Link], readonly=True)

@@ -55,8 +55,8 @@ class Instance(base.KongmingObject,
         instance.obj_reset_changes()
         return instance
 
-    @staticmethod
-    def _from_db_object_list(db_objects, cls, context):
+    @classmethod
+    def _from_db_object_list(cls, db_objects, context):
         """Converts a list of database entities to a list of formal objects"""
 
         return [Instance._from_db_object(context, cls(context), obj)
@@ -76,6 +76,12 @@ class Instance(base.KongmingObject,
         instance = Instance._from_db_object(
             context, cls(context), db_instance)
         return instance
+
+    @classmethod
+    def get_instances_by_host_name(cls, context, host_name):
+        db_instances = cls.dbapi.instances_get_by_host_name(
+            context, host_name)
+        return self.from_db_object_list(cls, db_instances, context)
 
     def create(self, context=None):
         """Create a Mapping record in the DB."""
@@ -108,11 +114,3 @@ class InstanceList(base.ObjectListBase,
     fields = {
         'objects': object_fields.ListOfObjectsField('Instance'),
     }
-
-    @classmethod
-    def get_by_host_name(cls, context, host_name):
-        db_instances = cls.dbapi.instances_get_by_host_name(
-            context, host_name)
-        return object_base.obj_make_list(context, cls(context),
-                                         objects.Instance,
-                                         db_instances)

@@ -16,6 +16,7 @@ from oslo_log import log as logging
 from oslo_versionedobjects import base as object_base
 
 from kongming.db import api as dbapi
+from kongming import objects
 from kongming.objects import base
 from kongming.objects import fields as object_fields
 
@@ -71,8 +72,8 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
             for obj in db_objects]
 
     def _load_instances(self, context, host_name):
-        self.instnaces = objects.InstanceList.get_by_host_name(
-            context=context, host_name=host_name)
+        self.instances = objects.Instance.get_instances_by_host_name(
+            context=context, host_name=host_name).objects
 
     @classmethod
     def list(cls, context):
