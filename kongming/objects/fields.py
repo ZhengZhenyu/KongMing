@@ -19,7 +19,6 @@ from oslo_versionedobjects import fields as object_fields
 # Import fields from oslo_versionedobjects
 IntegerField = object_fields.IntegerField
 UUIDField = object_fields.UUIDField
-DictOfListOfStringsField = object_fields.DictOfListOfStringsField
 StringField = object_fields.StringField
 DateTimeField = object_fields.DateTimeField
 BooleanField = object_fields.BooleanField
@@ -29,3 +28,23 @@ ListOfStringsField = object_fields.ListOfStringsField
 IPAddressField = object_fields.IPAddressField
 IPNetworkField = object_fields.IPNetworkField
 UnspecifiedDefault = object_fields.UnspecifiedDefault
+
+
+class FlexibleDict(object_fields.FieldType):
+    @staticmethod
+    def coerce(obj, attr, value):
+        if isinstance(value, six.string_types):
+            value = ast.literal_eval(value)
+        return dict(value)
+
+
+class FlexibleDictField(object_fields.AutoTypedField):
+    AUTO_TYPE = FlexibleDict()
+
+    # TODO(lucasagomes): In our code we've always translated None to {},
+    # this method makes this field to work like this. But probably won't
+    # be accepted as-is in the oslo_versionedobjects library
+    def _null(self, obj, attr):
+        if self.nullable:
+            return {}
+        super(FlexibleDictField, self)._null(obj, attr)
