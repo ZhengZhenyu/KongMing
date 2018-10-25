@@ -25,6 +25,7 @@ from oslo_db.sqlalchemy import utils as sqlalchemyutils
 from oslo_log import log
 from oslo_utils import strutils
 from oslo_utils import uuidutils
+from sqlalchemy import orm
 from sqlalchemy.orm.exc import NoResultFound
 
 from kongming.common import exception
@@ -189,7 +190,7 @@ class Connection(api.Connection):
     def host_get_by_name(self, context, host_name):
         query = model_query(
             context,
-            models.Hosts).filter_by(
+            models.Hosts).options(orm.joinedload('instances')).filter_by(
             host_name=host_name)
         try:
             return query.one()
@@ -206,9 +207,9 @@ class Connection(api.Connection):
     @oslo_db_api.retry_on_deadlock
     def _do_update_host(self, context, host_name, updates):
         with _session_for_write():
-            query = model_query(context,
-                                models.Hosts).filter_by(
-                                host_name=host_name)
+            query = model_query(
+                context, models.Hosts).options(
+                orm.joinedload('instances')).filter_by(host_name=host_name)
             try:
                 ref = query.with_lockmode('update').one()
             except NoResultFound:
