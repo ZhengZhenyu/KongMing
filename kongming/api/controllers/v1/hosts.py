@@ -77,6 +77,7 @@ class Host(base.APIBase):
             for i in xrange(len(cpu_map)):
                 cpu_map[i - 1] = cpu_map[i - 1] or raw_cpu_map[i - 1]
         instance_dict['cpu_mappings'] = cpu_map
+        return instance_dict
 
     @classmethod
     def convert_with_links(cls, obj_host):
