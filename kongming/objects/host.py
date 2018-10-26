@@ -73,7 +73,7 @@ class Host(base.KongmingObject, object_base.VersionedObjectDictCompat):
 
     def _load_instances(self, context, host_name):
         self.instances = objects.Instance.get_instances_by_host_name(
-            context=context, host_name=host_name).objects
+            context=context, host_name=host_name)
 
     @classmethod
     def list(cls, context):

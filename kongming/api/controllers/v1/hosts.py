@@ -68,7 +68,21 @@ class Host(base.APIBase):
 
     @classmethod
     def convert_with_links(cls, obj_host):
-        api_host = cls(**obj_host.as_dict())
+        host_dict = {}
+        for field in obj_host:
+            if field == 'instances':
+                instance_dict_list = []
+                for instance in getattr(obj_host, field):
+                    instance_dict = instance.as_dict()
+                    instance_dict.pop('created_at')
+                    instance_dict.pop('updated_at')
+                    instance_dict.pop('host')
+                    instance_dict_list.append(instance_dict)
+                host_dict[field] = instance_dict_list
+            else:
+                host_dict[field] = getattr(obj_host, field)
+
+        api_host = cls(host_dict)
         url = pecan.request.public_url
         api_host.links = [
             link.Link.make_link(
