@@ -82,7 +82,7 @@ class Host(base.APIBase):
             else:
                 host_dict[field] = getattr(obj_host, field)
 
-        api_host = cls(host_dict)
+        api_host = cls(**host_dict)
         url = pecan.request.public_url
         api_host.links = [
             link.Link.make_link(

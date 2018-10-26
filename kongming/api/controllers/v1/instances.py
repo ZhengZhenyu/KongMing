@@ -57,6 +57,9 @@ class Instance(base.APIBase):
     hosts = wtypes.text
     """The host that the instance is on"""
 
+    mapped_by_kongming = types.boolean
+    """Whether this instance has been mapped by kongming or not"""
+
     links = wsme.wsattr([link.Link], readonly=True)
     """A list containing a self link"""
 
@@ -70,8 +73,9 @@ class Instance(base.APIBase):
             setattr(self, field, kwargs.get(field, wtypes.Unset))
 
     @classmethod
-    def convert_with_links(cls, obj_instance):
+    def convert_with_links(cls, obj_instance, mapped_by_kongming=False):
         api_instance = cls(**obj_instance.as_dict())
+        api_instance.mapped_by_kongming = mapped_by_kongming
         url = pecan.request.public_url
         api_instance.links = [
             link.Link.make_link(
@@ -112,4 +116,11 @@ class InstancesController(rest.RestController):
         """
         db_host = objects.Instance.get(
             pecan.request.context, uuid)
-        return Instance.convert_with_links(db_host)
+        try:
+            objects.InstanceCPUMapping.get(
+                pecan.request.context, uuid)
+        except exception.InstanceCPUMappingNotFound:
+            mapped_by_kongming = False
+        else:
+            mapped_by_kongming = True
+        return Instance.convert_with_links(db_host, mapped_by_kongming)
