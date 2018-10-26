@@ -67,16 +67,25 @@ class Host(base.APIBase):
             setattr(self, field, kwargs.get(field, wtypes.Unset))
 
     @classmethod
+    def _handle_instance(cls, instance):
+        instance_dict = instance.as_dict()
+        instance_dict.pop('created_at')
+        instance_dict.pop('updated_at')
+        instance_dict.pop('host')
+        cpu_map = cpu_maps['0']
+        for cpu_num, raw_cpu_map in cpu_maps:
+            for i in xrange(len(cpu_map)):
+                cpu_map[i - 1] = cpu_map[i - 1] or raw_cpu_map[i - 1]
+        instance_dict['cpu_mappings'] = cpu_map
+
+    @classmethod
     def convert_with_links(cls, obj_host):
         host_dict = {}
         for field in obj_host:
             if field == 'instances':
                 instance_dict_list = []
                 for instance in getattr(obj_host, field):
-                    instance_dict = instance.as_dict()
-                    instance_dict.pop('created_at')
-                    instance_dict.pop('updated_at')
-                    instance_dict.pop('host')
+                    instance_dict = Host._handle_instance(instance)
                     instance_dict_list.append(instance_dict)
                 host_dict[field] = instance_dict_list
             else:
