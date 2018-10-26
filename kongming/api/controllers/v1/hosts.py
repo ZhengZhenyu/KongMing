@@ -89,6 +89,12 @@ class Host(base.APIBase):
                     instance_dict = Host._handle_instance(instance)
                     instance_dict_list.append(instance_dict)
                 host_dict[field] = instance_dict_list
+            elif field == 'cpu_topology':
+                host_dict[field] = getattr(obj_host, field)
+                keys = host_dict[field].keys()
+                for key in keys:
+                    host_dict[field]['NUMA_' + key] = host_dict[field].pop(
+                        key)
             else:
                 host_dict[field] = getattr(obj_host, field)
 
