@@ -30,114 +30,34 @@ Idea
 Implementation
 --------------
 
-本项目的主要思路是在虚拟机创建成功后，通过某种机制触发部署在每一个计算节点上的``Executor``
-通过获取到的部署模板调用``Hypervisor``来进行相应的操作。触发机制分为以下三类
+KongMing包含 API、Conductor、Agent三个组件，以及一个Nova Filter
 
-1. Versioned Notification + Instance Metadata (已经实现）
+- KongMing API: 接受来自用户或外部服务的请求，并返回响应结果
+- KongMing Conductor: 接受来自API或Agent的内部RPC请求，访问数据库或对Agent进行操作
+- KongMing Agent: Worker进程，部署于每个计算节点，接受RPC请求并进行相应的响应
 
-* 优点:
-
-  - 实现简单
-  - 没有额外的API调用
-
-* 缺点:
-
-  - 依赖于``Versioned Nofitication`` 及 ``Instance Metadata``
-  - 不利于功能扩展
-    
-  架构图::
-
-               +-----------------+
-               |  Message Queue  |
-               +-------------+---+
-                   ^         |
-            Listen |         | Versioned Notification
-                   |         |
-                   |         v
-          +--------+----------------------+
-          | KongMing Notification Handler |
-          +-------------+-----------------+
-                        |
-                        |   Notification.Type == instance.create.end
-                        |   Notification.Payload.Host == self.host
-                        |
-              +---------v----------+
-              |  KongMing Executor |
-              +---------+----------+
-                        |
-                        | Payload Parse
-                 +------v--------+
-                 |    Libvirt    |
-                 +---------------+
-
-
-2. Legacy Notification + Instance Metadata + Novaclient(未实现）
-  
-* 优点:
-
-  - 实现中等
-
-* 缺点:
-
-  - 需要从计算节点通过API调用Nova-API
-  - 依赖于``Instance Metadata``(用户可见）
-  - 不利于功能扩展
-
-  架构图::
-    
-              +-----------------+
-              |  Message Queue  |
-              +---+---------+---+
-                  |         |
-           Listen |         |  Legacy Notification
-                  |         |
-                  |         |
-         +--------+---------v------------+
-         | KongMing Notification Handler |
-         +-------------+-----------------+
-                       |
-                       |   Notification.Type == instance.create.end
-                       |   Notification.Publisher_id:host == self.host
-                       |
-             +---------v----------+  GET /server/{uuid}details    +---------------+
-             |  KongMing Executor +  ------------------------>    |   Nova-API    |
-             +---------+----------+  <-----------------------+    +---------------+
-                       |                 instance.metadata
-                       | Metadata Parse
-                +------v--------+
-                |    Libvirt    |
-                +---------------+
-         
-
-3. Stand-alone (API + DB +Executor)(未实现）
-
-* 优点:
-
-  - 功能扩展性强
-
-* 缺点:
-
-  - 实现复杂
 
 架构图::
 
-                                               Polling   +------------+
-                                              +--------> |  Nova API  |
-                                              |          +------------+
-          Allocation Map      +-------------++
-        +------------------>  | KongMing API |       +---------------+
-                              +------+------++       | Message Queue |
-                                     |      |        +---------------+
-                       Allocation Map|      +-------------^
-                                     |       Listen
-                           +---------v---------+
-                           | KongMing Executor |
-                           +---------+---------+
-                                     |
-                                     |
-                               +-----V-----+
-                               |  Libvirt  |
-                               +-----------+
+    +--------------+
+    |              |
+    | KongMing API +----------------+
+    |              |              +-v--+
+    +------+-------+              |    |
+           |                      | DB |
+           |                      |    |
+     +-----v-------+              +-^--+
+     |  KongMing   +----------------+
+     |  Conductor  |
+     +------+------+
+            |
+            |
+            |
+     +------v-----+
+     |  KongMing  |
+     |  Executor  |
+     +------------+
+
 
 
 How To Use
@@ -145,8 +65,6 @@ How To Use
 
 Note ::
   VCPU pinning 不支持``QEMU``虚拟化。
-
-目前仅实现了第一种触发模式(Versioned Notification + Instance Metadata)
 
 1. 克隆代码::
 
@@ -164,10 +82,3 @@ Note ::
 
   driver = messagingv2
 
-4. 启动服务::
-
-  python /usr/local/bin/kongming-notification-handler --config-file=kongming.conf
-
-5. 在创建虚拟机时使用``metadata key``触发功能::
-
-  nova boot ... --meta kongming-vcpu-pinning=5-6,9-11,^10  test
