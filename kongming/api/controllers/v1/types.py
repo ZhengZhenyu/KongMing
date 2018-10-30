@@ -144,7 +144,7 @@ class JsonPatchType(wtypes.Base):
     value = wtypes.wsattr(jsontype, default=wtypes.Unset)
 
     # The class of the objects being patched. Override this in subclasses.
-    # Should probably be a subclass of cyborg.api.controllers.base.APIBase.
+    # Should probably be a subclass of kongming.api.controllers.base.APIBase.
     _api_base = None
 
     # Attributes that are not required for construction, but which may not be

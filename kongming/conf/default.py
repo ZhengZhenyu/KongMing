@@ -58,7 +58,7 @@ path_opts = [
                help=_('Directory where kongming binaries are installed.')),
     cfg.StrOpt('state_path',
                default='$pybasedir',
-               help=_("Top-level directory for maintaining cyborg's state.")),
+               help=_("Top-level directory for maintaining kongming's state.")),
 ]
 
 PLACEMENT_CONF_SECTION = 'placement'

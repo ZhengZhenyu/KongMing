@@ -180,7 +180,7 @@ def authorize_wsgi(api_name, act=None, need_target=True):
         :param need_target: Whether need target for authorization. Such as,
                when create some resource , maybe target is not needed.
        example:
-           from mogan.common import policy
+           from kongming.common import policy
            class ServersController(rest.RestController):
                ....
                @policy.authorize_wsgi("kingming:mapping", "delete")
@@ -264,7 +264,7 @@ def enforce(rule, target, creds, do_raise=False, exc=None, *args, **kwargs):
     # NOTE: this method is obsoleted by authorize(), but retained for
     # backwards compatibility in case it has been used downstream.
     # It may be removed in the Pike cycle.
-    LOG.warning("Deprecation warning: calls to mogan.common.policy.enforce() "
+    LOG.warning("Deprecation warning: calls to kongming.common.policy.enforce() "
                 "should be replaced with authorize(). This method may be "
                 "removed in a future release.")
 

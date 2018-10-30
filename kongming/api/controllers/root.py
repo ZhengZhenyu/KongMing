@@ -60,7 +60,7 @@ class RootController(rest.RestController):
     def _route(self, args, request=None):
         """Overrides the default routing behavior.
 
-        It redirects the request to the default version of the cyborg API
+        It redirects the request to the default version of the kongming API
         if the version number is not specified in the url.
         """
 

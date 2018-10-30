@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""The Cyborg Conductor Service."""
+"""The Kongming Conductor Service."""
 
 import sys
 

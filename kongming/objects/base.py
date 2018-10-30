@@ -26,7 +26,7 @@ class KongmingObjectRegistry(object_base.VersionedObjectRegistry):
     def registration_hook(self, cls, index):
         # NOTE(jroll): blatantly stolen from nova
         # NOTE(danms): This is called when an object is registered,
-        # and is responsible for maintaining mogan.objects.$OBJECT
+        # and is responsible for maintaining kongming.objects.$OBJECT
         # as the highest-versioned implementation of a given object.
         version = versionutils.convert_version_to_tuple(cls.VERSION)
         if not hasattr(objects, cls.obj_name()):
@@ -81,7 +81,7 @@ class KongmingObject(object_base.VersionedObject):
                     if hasattr(self, k))
 
     def obj_refresh(self, loaded_object):
-        """Applies updates for objects that inherit from base. MoganObject.
+        """Applies updates for objects that inherit from base. KongmingObject.
 
         Checks for updated attributes in an object. Updates are applied from
         the loaded object column by column in comparison with the current

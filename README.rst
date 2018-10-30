@@ -151,5 +151,5 @@ Note ::
     $ /usr/local/bin/kongming-api --config-file /etc/kongming/kongming.conf
 
     $ /usr/local/bin/kongming-conductor --config-file /etc/kongming/kongming.conf
-    
+
     $ /usr/local/bin/kongming-agent --config-file /etc/kongming/kongming.conf
