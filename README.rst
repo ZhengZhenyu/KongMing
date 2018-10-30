@@ -66,41 +66,41 @@ How To Install
 
 Note ::
 
-  VCPU pinning 不支持``QEMU``虚拟化。
+    VCPU pinning 不支持``QEMU``虚拟化。
 
 1. 克隆代码::
 
-  git clone https://github.com/zhengzhenyu/kongming.git
+    git clone https://github.com/zhengzhenyu/kongming.git
 
 2. 安装::
 
-  python setup.py install
+    python setup.py install
 
 4. 配置数据库::
 
-  CREATE DATABASE kongming;
+    CREATE DATABASE kongming;
 
-  GRANT ALL PRIVILEGES ON kongming.* TO 'kongming'@'localhost' \
-  IDENTIFIED BY 'KONGMING_DBPASS';
-  GRANT ALL PRIVILEGES ON kongming.* TO 'kongming'@'%' \
-  IDENTIFIED BY 'KONGMING_DBPASS';
+    GRANT ALL PRIVILEGES ON kongming.* TO 'kongming'@'localhost' \
+    IDENTIFIED BY 'KONGMING_DBPASS';
+    GRANT ALL PRIVILEGES ON kongming.* TO 'kongming'@'%' \
+    IDENTIFIED BY 'KONGMING_DBPASS';
 
 5. 在Keystone中配置相应的User, Endpoint::
 
-  $ openstack user create --domain default --password-prompt kongming
+    $ openstack user create --domain default --password-prompt kongming
 
-  $ openstack role add --project service --user kongming admin
+    $ openstack role add --project service --user kongming admin
 
-  $ openstack service create --name kongming --description "Resource Pin" resource_pin
+    $ openstack service create --name kongming --description "Resource Pin" resource_pin
 
-  $ openstack endpoint create --region RegionOne \
-  kongming public http://{your_ip}:{your_port}/v1
+    $ openstack endpoint create --region RegionOne \
+    kongming public http://{your_ip}:{your_port}/v1
 
-  $ openstack endpoint create --region RegionOne \
-  kongming internal http://{your_ip}:{your_port}/v1
+    $ openstack endpoint create --region RegionOne \
+    kongming internal http://{your_ip}:{your_port}/v1
 
-  $ openstack endpoint create --region RegionOne \
-  kongming admin http://{your_ip}:{your_port}/v1
+    $ openstack endpoint create --region RegionOne \
+    kongming admin http://{your_ip}:{your_port}/v1
 
 6. 在kongming.conf中做如下配置::
 
@@ -148,8 +148,8 @@ Note ::
 
 7. 启动服务::
 
-  $ /usr/local/bin/kongming-api --config-file /etc/kongming/kongming.conf
+    $ /usr/local/bin/kongming-api --config-file /etc/kongming/kongming.conf
 
-  $ /usr/local/bin/kongming-conductor --config-file /etc/kongming/kongming.conf
-
-  $ /usr/local/bin/kongming-agent --config-file /etc/kongming/kongming.conf
+    $ /usr/local/bin/kongming-conductor --config-file /etc/kongming/kongming.conf
+    
+    $ /usr/local/bin/kongming-agent --config-file /etc/kongming/kongming.conf
