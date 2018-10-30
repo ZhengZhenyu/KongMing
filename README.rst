@@ -85,6 +85,8 @@ Note ::
     GRANT ALL PRIVILEGES ON kongming.* TO 'kongming'@'%' \
     IDENTIFIED BY 'KONGMING_DBPASS';
 
+    $ kongming-dbsync upgrade
+
 5. 在Keystone中配置相应的User, Endpoint::
 
     $ openstack user create --domain default --password-prompt kongming
@@ -146,7 +148,12 @@ Note ::
     transport_url = rabbit://{your_rabbit_passwd}:{your_rabbit_user}@{your_ip}:5672/
     driver = messagingv2
 
-7. 启动服务::
+7. 若要与Nova进行互动::
+
+    将``kongming/compute/kongming_filter.py``移动到``nova/scheduler/filters``目录下并进行安装
+    在``nova-scheduler``所对应的``nova.conf``中的[filter_scheduler]enabled_filters中增加KongmingFilter
+
+8. 启动服务::
 
     $ /usr/local/bin/kongming-api --config-file /etc/kongming/kongming.conf
 
